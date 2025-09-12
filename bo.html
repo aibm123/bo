@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent & Digital Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js and Marked.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --background: #111827;
+            --card-bg: #1f2937;
+            --border: #374151;
+            --text-primary: #e5e7eb;
+            --text-secondary: #9ca3af;
+            --primary: #6366f1; /* indigo-500 */
+            --primary-hover: #4f46e5; /* indigo-600 */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+        }
+        .tab-btn.active {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .dashboard-tab-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        .chat-bubble-user { background-color: var(--primary); color: white; }
+        .chat-bubble-ai { background-color: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); }
+        .typing-dot { animation: typing-pulse 1.5s infinite; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing-pulse {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+        .image-upload-area { border: 2px dashed var(--border); }
+        .image-upload-area.dragover { border-color: var(--primary); background-color: rgba(99, 102, 241, 0.1); }
+        .prose ul { list-style-type: disc; margin-left: 1.5rem; }
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+        }
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+        .kpi-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        .table-auto th, .table-auto td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .table-auto th {
+            background-color: #374151;
+        }
+        .input-field {
+            background-color: var(--border);
+            border: 1px solid #4b5563;
+            color: var(--text-primary);
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5);
+        }
+        .list-item { cursor: pointer; transition: background-color 0.2s; }
+        .list-item:hover { background-color: #374151; }
+        .status-badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .status-published { background-color: #10b981; color: #ffffff; }
+        .status-draft { background-color: #6b7280; color: #ffffff; }
+    </style>
+</head>
+<body>
+    <!-- Login View -->
+    <div id="view-login" class="flex items-center justify-center min-h-screen">
+        <div class="w-full max-w-md p-8 space-y-6 bg-gray-800 rounded-lg shadow-md">
+            <h2 class="text-2xl font-bold text-center text-white">Đăng nhập</h2>
+            <form class="space-y-6">
+                <div>
+                    <label for="login-email" class="text-sm font-medium text-gray-300">Email</label>
+                    <input type="email" id="login-email" value="demo@email.com" class="w-full px-3 py-2 mt-1 rounded-md shadow-sm input-field">
+                </div>
+                <div>
+                    <label for="login-password" class="text-sm font-medium text-gray-300">Mật khẩu</label>
+                    <input type="password" id="login-password" value="password" class="w-full px-3 py-2 mt-1 rounded-md shadow-sm input-field">
+                </div>
+                <button type="button" id="login-btn" class="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-md shadow-sm">Đăng nhập</button>
+            </form>
+            <p class="text-sm text-center text-gray-400">
+                Chưa có tài khoản? <a href="#" id="show-register-view" class="font-medium text-indigo-400 hover:text-indigo-300">Đăng ký</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Register View -->
+    <div id="view-register" class="hidden flex items-center justify-center min-h-screen">
+        <div class="w-full max-w-md p-8 space-y-6 bg-gray-800 rounded-lg shadow-md">
+            <h2 class="text-2xl font-bold text-center text-white">Đăng ký</h2>
+            <form class="space-y-6">
+                 <div>
+                    <label for="register-name" class="text-sm font-medium text-gray-300">Họ và tên</label>
+                    <input type="text" id="register-name" class="w-full px-3 py-2 mt-1 rounded-md shadow-sm input-field">
+                </div>
+                <div>
+                    <label for="register-email" class="text-sm font-medium text-gray-300">Email</label>
+                    <input type="email" id="register-email" class="w-full px-3 py-2 mt-1 rounded-md shadow-sm input-field">
+                </div>
+                <div>
+                    <label for="register-password" class="text-sm font-medium text-gray-300">Mật khẩu</label>
+                    <input type="password" id="register-password" class="w-full px-3 py-2 mt-1 rounded-md shadow-sm input-field">
+                </div>
+                <button type="button" id="register-btn" class="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-md shadow-sm">Đăng ký</button>
+            </form>
+            <p class="text-sm text-center text-gray-400">
+                Đã có tài khoản? <a href="#" id="show-login-view" class="font-medium text-indigo-400 hover:text-indigo-300">Đăng nhập</a>
+            </p>
+        </div>
+    </div>
+    
+    <!-- Main App View -->
+    <div id="view-app" class="hidden container mx-auto p-4 md:p-6">
+        <header class="flex flex-col md:flex-row justify-between items-start mb-4">
+            <div>
+                <h1 class="text-3xl font-bold text-white">AI Agent & Digital Dashboard</h1>
+                <p class="text-gray-400 mt-1">Phân tích hiệu suất các kênh digital và trò chuyện với AI.</p>
+            </div>
+            <button id="logout-btn" class="mt-4 md:mt-0 flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md shadow-sm">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Đăng xuất</span>
+            </button>
+        </header>
+
+        <div class="border-b border-gray-700 mb-6">
+            <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+                <button id="tab-chatbot" class="tab-btn active whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm text-gray-400 hover:text-white border-transparent">Chatbot</button>
+                <button id="tab-dashboard" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm text-gray-400 hover:text-white border-transparent">Tổng quan</button>
+                <button id="tab-bai-viet" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm text-gray-400 hover:text-white border-transparent">Bài viết</button>
+                <button id="tab-dinh-ky" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm text-gray-400 hover:text-white border-transparent">Định kỳ</button>
+            </nav>
+        </div>
+
+        <main>
+            <!-- Dashboard View -->
+            <div id="view-dashboard" class="hidden space-y-6">
+                <div class="card">
+                     <div class="p-4 border-b border-gray-700">
+                         <nav class="flex space-x-2" aria-label="Dashboard Tabs">
+                             <button data-tab="product" class="dashboard-tab-btn active px-4 py-2 text-sm font-medium rounded-md">Product</button>
+                             <button data-tab="character" class="dashboard-tab-btn px-4 py-2 text-sm font-medium text-gray-300 rounded-md">Character</button>
+                             <button data-tab="segment" class="dashboard-tab-btn px-4 py-2 text-sm font-medium text-gray-300 rounded-md">Segment - Channel</button>
+                         </nav>
+                     </div>
+                     <div class="p-6">
+                         <div id="dashboard-tab-content-product" class="dashboard-tab-content space-y-6">
+                               <div>
+                                 <h4 class="text-md font-semibold mb-3 text-white">Thêm sản phẩm mới</h4>
+                                 <form class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                     <input type="text" placeholder="Tên sản phẩm" class="w-full px-3 py-2 rounded-md input-field">
+                                     <input type="text" placeholder="SKU" class="w-full px-3 py-2 rounded-md input-field">
+                                     <button type="submit" class="w-full md:w-auto px-4 py-2 bg-indigo-600 text-white rounded-md">Thêm</button>
+                                 </form>
+                             </div>
+                             <div class="overflow-x-auto">
+                                 <table class="w-full text-left text-sm table-auto">
+                                     <thead class="text-gray-300"><tr><th>Tên sản phẩm</th><th>SKU</th><th>Ngày tạo</th><th>Hành động</th></tr></thead>
+                                     <tbody>
+                                         <tr><td>Sản phẩm A</td><td>SP-001</td><td>2024-05-10</td><td><button class="text-red-400"><i class="fa-solid fa-trash"></i></button></td></tr>
+                                         <tr><td>Sản phẩm B</td><td>SP-002</td><td>2024-05-11</td><td><button class="text-red-400"><i class="fa-solid fa-trash"></i></button></td></tr>
+                                     </tbody>
+                                 </table>
+                             </div>
+                         </div>
+                         <div id="dashboard-tab-content-character" class="dashboard-tab-content hidden space-y-6">
+                               <div>
+                                 <h4 class="text-md font-semibold mb-3 text-white">Thêm Character mới</h4>
+                                 <form class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                     <input type="text" placeholder="Tên Character" class="w-full px-3 py-2 rounded-md input-field">
+                                     <input type="text" placeholder="Mô tả" class="w-full px-3 py-2 rounded-md input-field">
+                                     <button type="submit" class="w-full md:w-auto px-4 py-2 bg-indigo-600 text-white rounded-md">Thêm</button>
+                                 </form>
+                             </div>
+                             <div class="overflow-x-auto">
+                                 <table class="w-full text-left text-sm table-auto">
+                                     <thead class="text-gray-300"><tr><th>Tên Character</th><th>Mô tả</th><th>Hành động</th></tr></thead>
+                                     <tbody>
+                                         <tr><td>Khách hàng tiềm năng</td><td>Nhóm khách hàng trẻ, năng động</td><td><button class="text-red-400"><i class="fa-solid fa-trash"></i></button></td></tr>
+                                         <tr><td>Đối tác chiến lược</td><td>Các công ty trong ngành công nghệ</td><td><button class="text-red-400"><i class="fa-solid fa-trash"></i></button></td></tr>
+                                     </tbody>
+                                 </table>
+                             </div>
+                         </div>
+                          <div id="dashboard-tab-content-segment" class="dashboard-tab-content hidden space-y-6">
+                             <div>
+                                 <h4 class="text-md font-semibold mb-3 text-white">Thêm Segment - Channel mới</h4>
+                                 <form class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                     <input type="text" placeholder="Tên Segment" class="w-full px-3 py-2 rounded-md input-field">
+                                     <input type="text" placeholder="Kênh" class="w-full px-3 py-2 rounded-md input-field">
+                                     <button type="submit" class="w-full md:w-auto px-4 py-2 bg-indigo-600 text-white rounded-md">Thêm</button>
+                                 </form>
+                             </div>
+                             <div class="overflow-x-auto">
+                                 <table class="w-full text-left text-sm table-auto">
+                                     <thead class="text-gray-300"><tr><th>Segment</th><th>Channel</th><th>Hành động</th></tr></thead>
+                                     <tbody>
+                                         <tr><td>Segment A</td><td>Facebook</td><td><button class="text-red-400"><i class="fa-solid fa-trash"></i></button></td></tr>
+                                         <tr><td>Segment B</td><td>Zalo</td><td><button class="text-red-400"><i class="fa-solid fa-trash"></i></button></td></tr>
+                                     </tbody>
+                                 </table>
+                             </div>
+                         </div>
+                     </div>
+                </div>
+
+                <div id="legacy-dashboard-content" class="hidden">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
+                        <div class="card p-5"><p class="kpi-label">Wordpress Reach</p><p id="kpi-wp-reach" class="kpi-value">...</p></div>
+                        <div class="card p-5"><p class="kpi-label">Fanpage Reach</p><p id="kpi-fp-reach" class="kpi-value">...</p></div>
+                        <div class="card p-5"><p class="kpi-label">TikTok Views</p><p id="kpi-tt-views" class="kpi-value">...</p></div>
+                        <div class="card p-5"><p class="kpi-label">Zalo Sent</p><p id="kpi-zl-sent" class="kpi-value">...</p></div>
+                        <div class="card p-5"><p class="kpi-label">Zalo Users</p><p id="kpi-zl-users" class="kpi-value">...</p></div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 card p-6">
+                            <h3 class="text-lg font-semibold text-white mb-4">Hiệu suất theo ngày</h3>
+                            <div class="h-80"><canvas id="timeSeriesChart"></canvas></div>
+                        </div>
+                        <div class="card p-6">
+                            <h3 id="zalo-chart-title" class="text-lg font-semibold text-white mb-4">Phân khúc Zalo Users</h3>
+                            <div class="h-80"><canvas id="zaloSegmentsChart"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+                 <div id="dashboard-loading" class="text-center p-10">
+                    <i class="fas fa-spinner fa-spin text-4xl text-indigo-400"></i>
+                    <p class="mt-4 text-gray-400">Đang tải dữ liệu dashboard...</p>
+                </div>
+            </div>
+            
+            <div id="view-bai-viet" class="hidden">
+                 <div id="bai-viet-list-view">
+                    <h1 class="text-3xl font-bold text-white mb-6">Bài viết</h1>
+                    <div class="card p-6 rounded-lg mb-6">
+                        <input type="text" class="input-field w-full rounded-md p-3" placeholder="Nhập tên chiến dịch mới...">
+                        <button class="mt-4 w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white rounded-md px-6 py-3 font-semibold"><i class="fas fa-plus mr-2"></i>Tạo Chiến dịch</button>
+                    </div>
+                    <div class="card rounded-lg overflow-hidden">
+                        <div id="campaign-list" class="space-y-1 p-2">
+                             <div class="list-item p-4 rounded-lg"><h3 class="font-bold text-white">Chiến dịch Bất động sản Cao cấp</h3><p class="text-sm text-gray-400">10 bài viết</p></div>
+                            <div class="list-item p-4 rounded-lg"><h3 class="font-bold text-white">Tăng tốc Chuyển đổi số</h3><p class="text-sm text-gray-400">5 bài viết</p></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="bai-viet-detail-view" class="hidden">
+                    <button class="back-to-list-btn mb-4 py-2 px-4 rounded-md bg-gray-600 hover:bg-gray-700 text-white"><i class="fas fa-arrow-left mr-2"></i> Quay lại</button>
+                    <h2 class="text-2xl font-bold text-white mb-4">Chiến dịch Bất động sản Cao cấp</h2>
+                    <div class="space-y-4">
+                        <div class="card p-4"><p class="font-semibold text-white">Đánh giá pháp lý phân khu Canal District</p><div class="mt-2 flex justify-between items-center"><span class="status-badge status-published">Đã đăng</span><input type="datetime-local" class="input-field text-sm p-1 rounded-md bg-gray-700 border-gray-600"></div></div>
+                        <div class="card p-4"><p class="font-semibold text-white">5 Lý do nên đầu tư vào Shophouse</p><div class="mt-2 flex justify-between items-center"><span class="status-badge status-draft">Chưa đăng</span><input type="datetime-local" class="input-field text-sm p-1 rounded-md bg-gray-700 border-gray-600"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-dinh-ky" class="hidden">
+                 <div id="dinh-ky-list-view">
+                    <h1 class="text-3xl font-bold text-white mb-6">Định kỳ</h1>
+                     <div class="card p-6 rounded-lg mb-6">
+                         <h2 class="text-xl font-semibold mb-2 text-white">Thêm nhiệm vụ theo dõi Website</h2>
+                         <div class="flex flex-col sm:flex-row gap-4 mt-4">
+                             <input class="input-field flex-grow p-3 rounded-md" placeholder="https://www.example.com/news">
+                             <select class="input-field p-3 rounded-md"><option>Hàng ngày</option><option>Hàng tuần</option></select>
+                             <button class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-md">Thêm</button>
+                         </div>
+                    </div>
+                    <div class="card rounded-lg overflow-hidden">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="bg-gray-700">
+                                    <th scope="col" class="p-4 font-semibold text-gray-300">Website</th>
+                                    <th scope="col" class="p-4 font-semibold text-gray-300">Tần suất</th>
+                                    <th scope="col" class="p-4 font-semibold text-gray-300">Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-700">
+                                <tr class="list-item">
+                                    <td class="p-4 truncate">techcrunch.com/artificial-intelligence</td>
+                                    <td class="p-4">Hàng tuần</td>
+                                    <td class="p-4"><span class="font-semibold text-green-400">Hoạt động</span></td>
+                                </tr>
+                                <tr class="list-item">
+                                    <td class="p-4 truncate">vietnamnet.vn/kinh-doanh</td>
+                                    <td class="p-4">Hàng ngày</td>
+                                    <td class="p-4"><span class="font-semibold text-gray-500">Đã tắt</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                 <div id="dinh-ky-detail-view" class="hidden">
+                    <button class="back-to-list-btn mb-4 py-2 px-4 rounded-md bg-gray-600 hover:bg-gray-700 text-white"><i class="fas fa-arrow-left mr-2"></i> Quay lại</button>
+                    <h2 class="text-2xl font-bold text-white mb-4">Logs cho: techcrunch.com</h2>
+                    <div class="space-y-4">
+                        <div class="card p-3"><p class="text-sm text-gray-400">09/09/2025 - <span class="text-green-400">Hoàn thành</span></p><p class="text-white mt-1">Phát hiện bài viết mới: "OpenAI announces new partnership with Apple".</p></div>
+                        <div class="card p-3"><p class="text-sm text-gray-400">02/09/2025 - <span class="text-gray-400">Không có gì mới</span></p></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-chatbot">
+                 <div class="bg-gray-800 rounded-lg p-4 flex flex-col border border-gray-700" style="height: 75vh;">
+                    <div id="chat-messages" class="flex-grow overflow-y-auto mb-4 pr-2 space-y-4">
+                         <div class="flex justify-start"><div class="chat-bubble-ai p-3 rounded-lg max-w-lg">Xin chào! Tôi là AI Agent.</div></div>
+                    </div>
+                    <div class="flex gap-2 border-t border-gray-700 pt-4">
+                        <button id="toggle-image-upload" class="flex items-center space-x-2 px-3 py-2 bg-gray-600 hover:bg-gray-700 text-gray-300 rounded-lg"><i class="fa-solid fa-image"></i><span id="toggle-text">Thêm ảnh</span></button>
+                        <input type="text" id="chat-input" placeholder="Hỏi AI..." class="flex-grow w-full px-4 py-2 rounded-lg input-field">
+                        <button id="chat-send-btn" class="bg-indigo-600 text-white font-semibold px-5 py-2 rounded-lg hover:bg-indigo-700 disabled:bg-indigo-800">Gửi</button>
+                    </div>
+                    <div id="image-upload-container" class="mt-3 hidden">
+                        <div id="image-upload-area" class="p-5 text-center cursor-pointer hover:bg-gray-800 rounded-lg"><i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-500"></i><p class="text-gray-500 mt-2">Kéo thả ảnh hoặc click để chọn</p><input type="file" id="image-input" accept="image/*" class="hidden"></div>
+                        <div id="image-preview-container" class="hidden mt-3"><div class="flex items-center"><img id="image-preview" class="max-w-xs max-h-40 rounded-md"><button id="remove-image-btn" class="ml-2 text-red-500 hover:text-red-700">&times;</button></div></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        // --- CONFIG ---
+        const WEBHOOK_URL = 'https://aps.aibm.space/webhook/bd1';
+        const USER_EMAIL = 'aibizmanager@gmail.com'; 
+        const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY'; // IMPORTANT: Replace with your actual key
+
+        // --- CHART INSTANCES ---
+        let timeSeriesChartInstance = null;
+        let zaloSegmentsChartInstance = null;
+        let isProcessing = false;
+
+        // --- DOM ELEMENTS ---
+        const viewLogin = document.getElementById('view-login'), viewRegister = document.getElementById('view-register'), viewApp = document.getElementById('view-app');
+        const tabChatbot = document.getElementById('tab-chatbot'), tabDashboard = document.getElementById('tab-dashboard'), tabBaiViet = document.getElementById('tab-bai-viet'), tabDinhKy = document.getElementById('tab-dinh-ky');
+        const viewChatbot = document.getElementById('view-chatbot'), viewDashboard = document.getElementById('view-dashboard'), viewBaiViet = document.getElementById('view-bai-viet'), viewDinhKy = document.getElementById('view-dinh-ky');
+        const baiVietListView = document.getElementById('bai-viet-list-view'), baiVietDetailView = document.getElementById('bai-viet-detail-view'), campaignList = document.getElementById('campaign-list');
+        const dinhKyListView = document.getElementById('dinh-ky-list-view'), dinhKyDetailView = document.getElementById('dinh-ky-detail-view');
+        const dashboardTabButtons = document.querySelectorAll('.dashboard-tab-btn'), dashboardTabContents = document.querySelectorAll('.dashboard-tab-content');
+        
+        // Chatbot elements
+        const chatMessages = document.getElementById('chat-messages'), chatInput = document.getElementById('chat-input'), chatSendBtn = document.getElementById('chat-send-btn');
+        const imageUploadArea = document.getElementById('image-upload-area'), imageInput = document.getElementById('image-input'), imagePreviewContainer = document.getElementById('image-preview-container');
+        const imagePreview = document.getElementById('image-preview'), removeImageBtn = document.getElementById('remove-image-btn'), toggleImageUpload = document.getElementById('toggle-image-upload');
+        const toggleText = document.getElementById('toggle-text'), imageUploadContainer = document.getElementById('image-upload-container');
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            addEventListeners();
+            showView('login'); 
+        });
+
+        function addEventListeners() {
+            document.getElementById('login-btn').addEventListener('click', (e) => { e.preventDefault(); showView('app'); switchMainView('chatbot'); });
+            document.getElementById('register-btn').addEventListener('click', (e) => { e.preventDefault(); alert('Đăng ký thành công!'); showView('login'); });
+            document.getElementById('logout-btn').addEventListener('click', () => showView('login'));
+            document.getElementById('show-register-view').addEventListener('click', (e) => { e.preventDefault(); showView('register'); });
+            document.getElementById('show-login-view').addEventListener('click', (e) => { e.preventDefault(); showView('login'); });
+
+            tabChatbot.addEventListener('click', () => switchMainView('chatbot'));
+            tabDashboard.addEventListener('click', () => switchMainView('dashboard'));
+            tabBaiViet.addEventListener('click', () => switchMainView('bai-viet'));
+            tabDinhKy.addEventListener('click', () => switchMainView('dinh-ky'));
+            
+            campaignList.addEventListener('click', (e) => { if (e.target.closest('.list-item')) { baiVietListView.classList.add('hidden'); baiVietDetailView.classList.remove('hidden'); } });
+            baiVietDetailView.querySelector('.back-to-list-btn').addEventListener('click', () => { baiVietDetailView.classList.add('hidden'); baiVietListView.classList.remove('hidden'); });
+            
+            dinhKyListView.querySelector('tbody').addEventListener('click', (e) => { if(e.target.closest('.list-item')) { dinhKyListView.classList.add('hidden'); dinhKyDetailView.classList.remove('hidden'); } });
+            dinhKyDetailView.querySelector('.back-to-list-btn').addEventListener('click', () => { dinhKyDetailView.classList.add('hidden'); dinhKyListView.classList.remove('hidden'); });
+
+            dashboardTabButtons.forEach(button => { button.addEventListener('click', () => switchDashboardTab(button.dataset.tab)); });
+            
+            // Chatbot Listeners
+            chatSendBtn.addEventListener('click', handleChatSubmit);
+            chatInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') handleChatSubmit(); });
+            imageInput.addEventListener('change', (e) => handleImageFile(e.target.files[0]));
+            removeImageBtn.addEventListener('click', clearImage);
+            imageUploadArea.addEventListener('dragover', (e) => { e.preventDefault(); imageUploadArea.classList.add('dragover'); });
+            imageUploadArea.addEventListener('dragleave', (e) => { e.preventDefault(); imageUploadArea.classList.remove('dragover'); });
+            imageUploadArea.addEventListener('drop', (e) => { e.preventDefault(); imageUploadArea.classList.remove('dragover'); if (e.dataTransfer.files[0]) handleImageFile(e.dataTransfer.files[0]); });
+            imageUploadArea.addEventListener('click', () => imageInput.click());
+            toggleImageUpload.addEventListener('click', () => {
+                const isHidden = imageUploadContainer.classList.toggle('hidden');
+                toggleText.textContent = isHidden ? 'Thêm ảnh' : 'Ẩn ảnh';
+                if (isHidden) clearImage();
+            });
+        }
+        
+        function showView(viewName) {
+            viewLogin.classList.add('hidden'); viewRegister.classList.add('hidden'); viewApp.classList.add('hidden');
+            if (viewName === 'login') viewLogin.classList.remove('hidden');
+            else if (viewName === 'register') viewRegister.classList.remove('hidden');
+            else if (viewName === 'app') viewApp.classList.remove('hidden');
+        }
+
+        function switchMainView(viewName) {
+            const views = { 'chatbot': viewChatbot, 'dashboard': viewDashboard, 'bai-viet': viewBaiViet, 'dinh-ky': viewDinhKy };
+            const tabs = { 'chatbot': tabChatbot, 'dashboard': tabDashboard, 'bai-viet': tabBaiViet, 'dinh-ky': tabDinhKy };
+            Object.values(views).forEach(v => v.classList.add('hidden'));
+            Object.values(tabs).forEach(t => t.classList.remove('active'));
+            views[viewName].classList.remove('hidden');
+            tabs[viewName].classList.add('active');
+            if (viewName === 'dashboard') fetchDashboardData();
+        }
+        
+        function switchDashboardTab(tabName) {
+            dashboardTabButtons.forEach(button => {
+                button.classList.toggle('active', button.dataset.tab === tabName);
+                button.classList.toggle('text-white', button.dataset.tab === tabName);
+                button.classList.toggle('text-gray-300', button.dataset.tab !== tabName);
+            });
+            dashboardTabContents.forEach(content => content.classList.toggle('hidden', content.id !== `dashboard-tab-content-${tabName}`));
+        }
+        
+        Chart.defaults.color = 'white'; Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+
+        async function fetchDashboardData() {
+            document.getElementById('dashboard-loading').classList.remove('hidden');
+            document.getElementById('legacy-dashboard-content').classList.add('hidden');
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ "task": "dashboard", "email": USER_EMAIL })
+                });
+                if (!response.ok) throw new Error(`Webhook error: ${response.status}`);
+                renderDashboard(await response.json());
+            } catch (error) {
+                console.error("Dashboard fetch error:", error);
+                document.getElementById('dashboard-loading').innerHTML = `<p class="text-red-400">Không thể tải dữ liệu.</p>`;
+            } 
+        }
+
+        function renderDashboard(data) {
+            document.getElementById('legacy-dashboard-content').classList.remove('hidden');
+            document.getElementById('dashboard-loading').classList.add('hidden');
+
+            const sumBy = (arr, prop) => Array.isArray(arr) ? arr.reduce((sum, row) => sum + (Number(row[prop]) || 0), 0) : 0;
+            const wpData = data.wp || [], fbData = data.fb || [], ttData = data.tt || [], zlLogData = data['zl log'] || [], segmentData = data.segment || data['zl pro5'] || [];
+
+            document.getElementById('kpi-wp-reach').textContent = sumBy(wpData, 'reach').toLocaleString('vi-VN');
+            document.getElementById('kpi-fp-reach').textContent = sumBy(fbData, 'reach').toLocaleString('vi-VN');
+            document.getElementById('kpi-tt-views').textContent = sumBy(ttData, 'views').toLocaleString('vi-VN');
+            document.getElementById('kpi-zl-sent').textContent = sumBy(zlLogData, 'sent').toLocaleString('vi-VN');
+            document.getElementById('kpi-zl-users').textContent = (segmentData.length || 0).toLocaleString('vi-VN');
+
+            const allDates = [...new Set([...wpData.map(d => d.date.split(' ')[0]), ...fbData.map(d => d.date.split(' ')[0]), ...ttData.map(d => d.date.split(' ')[0])])].sort();
+            const datasets = [
+                { label: 'Wordpress', data: allDates.map(date => wpData.find(d => d.date.startsWith(date))?.reach || 0), borderColor: '#3b82f6' },
+                { label: 'Facebook', data: allDates.map(date => fbData.find(d => d.date.startsWith(date))?.reach || 0), borderColor: '#8b5cf6' },
+                { label: 'TikTok', data: allDates.map(date => ttData.find(d => d.date.startsWith(date))?.views || 0), borderColor: '#ec4899' }
+            ];
+
+            const tsCtx = document.getElementById('timeSeriesChart').getContext('2d');
+            if (timeSeriesChartInstance) timeSeriesChartInstance.destroy();
+            timeSeriesChartInstance = new Chart(tsCtx, {
+                type: 'line',
+                data: { labels: allDates, datasets: datasets.map(ds => ({ ...ds, fill: false, tension: 0.4, borderWidth: 2 })) },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.1)' } }, x: { grid: { color: 'rgba(255, 255, 255, 0.1)' } } } }
+            });
+
+            const segmentCounts = segmentData.reduce((acc, user) => { acc[user.segment] = (acc[user.segment] || 0) + 1; return acc; }, {});
+            const zsCtx = document.getElementById('zaloSegmentsChart').getContext('2d');
+            if (zaloSegmentsChartInstance) zaloSegmentsChartInstance.destroy();
+            zaloSegmentsChartInstance = new Chart(zsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(segmentCounts),
+                    datasets: [{ data: Object.values(segmentCounts), backgroundColor: [ '#4f46e5', '#3b82f6', '#0ea5e9', '#64748b' ] }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        // --- CHATBOT LOGIC ---
+        async function handleChatSubmit() {
+            const userInput = chatInput.value.trim();
+            const selectedImageFile = imageInput.files[0];
+            if ((!userInput && !selectedImageFile) || isProcessing) return;
+            setLoadingState(true);
+
+            if (selectedImageFile) {
+                appendChatMessage(`Gửi ảnh...`, 'user');
+                const prompt = userInput || "Phân tích ảnh này.";
+                if (userInput) appendChatMessage(userInput, 'user');
+                showTypingIndicator(true);
+                await handleImageAnalysis(selectedImageFile, prompt);
+            } else {
+                appendChatMessage(userInput, 'user');
+                showTypingIndicator(true);
+                await handleTextChat(userInput);
+            }
+            chatInput.value = '';
+            clearImage();
+            setLoadingState(false);
+        }
+
+        async function handleTextChat(userInput) {
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ task: "chatbot", prompt: userInput, threadId: "digital-chat", email: USER_EMAIL })
+                });
+                if (!response.ok) throw new Error(`Webhook error: ${response.status}`);
+                const result = await response.json();
+                appendChatMessage(result[0]?.output || "Lỗi, không có phản hồi.", 'ai');
+            } catch (error) {
+                appendChatMessage(`Lỗi: ${error.message}`, 'ai');
+            }
+        }
+
+        async function handleImageAnalysis(file, userInput) {
+            if (GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY') {
+                appendChatMessage("Lỗi: Vui lòng cấu hình GEMINI_API_KEY của bạn trong code.", 'ai');
+                return;
+            }
+            try {
+                const base64Image = await fileToBase64(file);
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: userInput }, { inline_data: { mime_type: file.type, data: base64Image.split(',')[1] } }] }] })
+                });
+                if (!response.ok) throw new Error(`API error: ${response.status}`);
+                const result = await response.json();
+                const aiResponse = result.candidates?.[0]?.content.parts[0].text || 'Không nhận được phản hồi.';
+                appendChatMessage(aiResponse, 'ai');
+            } catch (error) {
+                appendChatMessage("Lỗi phân tích ảnh: " + error.message, 'ai');
+            }
+        }
+
+        function showTypingIndicator(show) {
+            let indicator = document.getElementById('typing-indicator');
+            if (show) {
+                if (indicator) indicator.remove();
+                indicator = document.createElement('div');
+                indicator.id = 'typing-indicator';
+                indicator.className = 'flex justify-start';
+                indicator.innerHTML = `<div class="chat-bubble-ai p-3 rounded-lg flex items-center space-x-1"><div class="typing-dot w-2 h-2 bg-gray-400 rounded-full"></div><div class="typing-dot w-2 h-2 bg-gray-400 rounded-full"></div><div class="typing-dot w-2 h-2 bg-gray-400 rounded-full"></div></div>`;
+                chatMessages.appendChild(indicator);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            } else {
+                if (indicator) indicator.remove();
+            }
+        }
+
+        function appendChatMessage(message, sender) {
+            showTypingIndicator(false);
+            const wrapper = document.createElement('div');
+            wrapper.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+            const bubble = document.createElement('div');
+            bubble.className = `p-3 rounded-lg max-w-lg prose ${sender === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'}`;
+            bubble.innerHTML = marked.parse(message);
+            wrapper.appendChild(bubble);
+            chatMessages.appendChild(wrapper);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function handleImageFile(file) {
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => { imagePreview.src = e.target.result; imagePreviewContainer.classList.remove('hidden'); }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function clearImage() {
+            imageInput.value = ''; imagePreviewContainer.classList.add('hidden'); imagePreview.src = '';
+        }
+
+        function fileToBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result); reader.onerror = reject; }); }
+        
+        function setLoadingState(isLoading) {
+            isProcessing = isLoading; chatSendBtn.disabled = isLoading; chatInput.disabled = isLoading;
+        }
+    </script>
+</body>
+</html>
+
+
+
