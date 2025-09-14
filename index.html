@@ -33,8 +33,8 @@
             background-color: var(--background);
             color: var(--text-primary);
             min-height: 100vh;
-            /* Mobile browser viewport height fix */
             min-height: -webkit-fill-available; 
+            overscroll-behavior-y: none;
         }
         .tab-btn.active {
             border-color: var(--primary);
@@ -46,15 +46,6 @@
         }
         .chat-bubble-user { background-color: var(--primary); color: white; }
         .chat-bubble-ai { background-color: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border); }
-        .typing-dot { animation: typing-pulse 1.5s infinite; }
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes typing-pulse {
-            0%, 100% { opacity: 0.2; transform: scale(0.8); }
-            50% { opacity: 1; transform: scale(1); }
-        }
-        .image-upload-area { border: 2px dashed var(--border); }
-        .image-upload-area.dragover { border-color: var(--primary); background-color: rgba(99, 102, 241, 0.1); }
         .prose ul { list-style-type: disc; margin-left: 1.5rem; }
         .card {
             background-color: var(--card-bg);
@@ -77,10 +68,9 @@
     <!-- Login View -->
     <div id="view-login" class="flex items-center justify-center min-h-screen p-4">
         <div class="w-full max-w-md p-6 sm:p-8 space-y-6 bg-gray-800 rounded-lg shadow-xl">
-            <!-- Login Form Section -->
             <div>
                 <h2 class="text-2xl font-bold text-center text-white">Đăng nhập</h2>
-                <form class="space-y-6 mt-6">
+                <form id="login-form" class="space-y-6 mt-6">
                     <div>
                         <label for="login-email" class="text-sm font-medium text-gray-300">Email</label>
                         <input type="email" id="login-email" class="w-full px-3 py-2 mt-1 rounded-md shadow-sm input-field" placeholder="Nhập email của bạn" value="admin@gmail.com">
@@ -93,33 +83,13 @@
                 </form>
                 <p id="login-error" class="text-sm text-center text-red-400 mt-2 hidden"></p>
             </div>
-
-            <!-- Info Section -->
             <div class="border-t border-gray-700 pt-6 space-y-6">
-                <div class="text-center">
-                    <h1 class="text-3xl font-bold text-white">AI BIZ OWNER</h1>
-                </div>
+                <div class="text-center"><h1 class="text-3xl font-bold text-white">AI BIZ OWNER</h1></div>
                 <div class="space-y-4 text-gray-300 text-sm text-center">
                     <div>
-                        <h3 class="font-semibold text-white mb-2">Tài khoản admin & user chung:</h3>
-                        <ul class="list-disc list-inside space-y-1 pl-2 inline-block text-left">
+                        <h3 class="font-semibold text-white mb-2">Tài khoản chung:</h3>
+                        <ul class="list-inside space-y-1">
                             <li><span class="font-mono bg-gray-700 px-1 rounded">admin@gmail.com</span> / <span class="font-mono bg-gray-700 px-1 rounded">123</span></li>
-                            <li><span class="font-mono bg-gray-700 px-1 rounded">user@gmail.com</span> / <span class="font-mono bg-gray-700 px-1 rounded">123</span></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 class="font-semibold text-white mb-2">Danh sách Apps mở rộng:</h3>
-                        <ul class="list-disc list-inside space-y-1 pl-2 inline-block text-left">
-                            <li>SIS: <a href="https://sis.aibm.space" target="_blank" class="text-indigo-400 hover:underline">https://sis.aibm.space</a></li>
-                            <li>HIS: <a href="https://his.aibm.space" target="_blank" class="text-indigo-400 hover:underline">https://his.aibm.space</a></li>
-                            <li>POD: <a href="https://pod.aibm.space" target="_blank" class="text-indigo-400 hover:underline">https://pod.aibm.space</a></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 class="font-semibold text-white mb-2">Link database chung & tài khoản:</h3>
-                         <p><a href="https://aibm.store/workspace/164" target="_blank" class="text-indigo-400 hover:underline break-all">https://aibm.store/workspace/164</a></p>
-                        <ul class="list-disc list-inside space-y-1 pl-2 mt-1 inline-block text-left">
-                            <li><span class="font-mono bg-gray-700 px-1 rounded">realtrendasia@gmail.com</span> / <span class="font-mono bg-gray-700 px-1 rounded">aibizmanager</span></li>
                         </ul>
                     </div>
                 </div>
@@ -129,31 +99,25 @@
     
     <!-- Main App View -->
     <div id="view-app" class="hidden h-screen flex flex-col">
-        <!-- Header -->
         <header class="container mx-auto px-4 pt-4 md:px-6 md:pt-6 flex-shrink-0 flex flex-col md:flex-row justify-between items-start">
             <div>
-                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-white">AI Agent & Digital Dashboard</h1>
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-white">AI Agent Dashboard</h1>
                 <p class="text-gray-400 mt-1 text-sm sm:text-base">Phân tích và trò chuyện với AI.</p>
             </div>
             <button id="logout-btn" class="mt-4 md:mt-0 flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md shadow-sm">
-                <i class="fa-solid fa-right-from-bracket"></i>
-                <span>Đăng xuất</span>
+                <i class="fa-solid fa-right-from-bracket"></i><span>Đăng xuất</span>
             </button>
         </header>
-
-        <!-- Navigation -->
         <div class="container mx-auto px-4 md:px-6 flex-shrink-0 mt-4">
             <div class="border-b border-gray-700">
                 <nav class="-mb-px flex space-x-2 sm:space-x-6 overflow-x-auto" aria-label="Tabs">
-                    <button id="tab-chatbot" class="tab-btn active whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Chatbot</button>
-                    <button id="tab-dashboard" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Tổng quan</button>
-                    <button id="tab-bai-viet" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Bài viết</button>
-                    <button id="tab-dinh-ky" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Định kỳ</button>
+                    <button data-view="chatbot" class="tab-btn active whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Chatbot</button>
+                    <button data-view="dashboard" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Tổng quan</button>
+                    <button data-view="bai-viet" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Bài viết</button>
+                    <button data-view="dinh-ky" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Định kỳ</button>
                 </nav>
             </div>
         </div>
-
-        <!-- Main Content -->
         <main class="container mx-auto px-4 pb-4 md:px-6 md:pb-6 flex-grow min-h-0 mt-6">
             <div id="view-chatbot" class="h-full flex flex-col">
                 <div class="bg-gray-800 rounded-lg flex flex-col border border-gray-700 h-full">
@@ -176,12 +140,17 @@
                     </div>
                 </div>
             </div>
-            <div id="view-dashboard" class="hidden h-full overflow-y-auto">...</div>
-            <div id="view-bai-viet" class="hidden h-full overflow-y-auto">...</div>
-            <div id="view-dinh-ky" class="hidden h-full overflow-y-auto">...</div>
+            <div id="view-dashboard" class="hidden h-full overflow-y-auto space-y-6">
+                <!-- Dashboard content will be dynamically loaded here -->
+            </div>
+            <div id="view-bai-viet" class="hidden h-full overflow-y-auto">
+                <!-- Bài viết content will be dynamically loaded here -->
+            </div>
+            <div id="view-dinh-ky" class="hidden h-full overflow-y-auto">
+                <!-- Định kỳ content will be dynamically loaded here -->
+            </div>
         </main>
     </div>
-
 
     <script type="module">
         // --- CONFIG ---
@@ -189,34 +158,29 @@
         let USER_EMAIL = ''; 
         const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY';
 
-        // --- BASEROW API CONFIG ---
-        const BASEROW_HOST = 'https://aibm.store';
-        const BASEROW_TOKEN = 'VppDkJZikNBGWobtcWfmefao16lpAlmN';
-        const TABLE_IDS = { product: '724', character: '745', segment: '784', campaign: '731', post: '746', task: '795', automated_logs: '744', user: '875' };
-
         let isProcessing = false;
 
         // --- DOM ELEMENTS ---
-        const viewLogin = document.getElementById('view-login'), viewApp = document.getElementById('view-app');
+        const viewLogin = document.getElementById('view-login');
+        const viewApp = document.getElementById('view-app');
         const mainViews = {
             chatbot: document.getElementById('view-chatbot'),
             dashboard: document.getElementById('view-dashboard'),
             'bai-viet': document.getElementById('view-bai-viet'),
             'dinh-ky': document.getElementById('view-dinh-ky')
         };
-        const tabButtons = {
-            chatbot: document.getElementById('tab-chatbot'),
-            dashboard: document.getElementById('tab-dashboard'),
-            'bai-viet': document.getElementById('tab-bai-viet'),
-            'dinh-ky': document.getElementById('tab-dinh-ky')
-        };
+        const tabButtons = document.querySelectorAll('.tab-btn');
         
         // Chatbot elements
-        const chatMessages = document.getElementById('chat-messages'), chatInput = document.getElementById('chat-input'), chatSendBtn = document.getElementById('chat-send-btn');
-        const imageInput = document.getElementById('image-input'), imagePreviewContainer = document.getElementById('image-preview-container');
-        const imagePreview = document.getElementById('image-preview'), removeImageBtn = document.getElementById('remove-image-btn'), toggleImageUpload = document.getElementById('toggle-image-upload');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const chatSendBtn = document.getElementById('chat-send-btn');
+        const imageInput = document.getElementById('image-input');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const imagePreview = document.getElementById('image-preview');
+        const removeImageBtn = document.getElementById('remove-image-btn');
+        const toggleImageUpload = document.getElementById('toggle-image-upload');
         
-
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
             addEventListeners();
@@ -226,12 +190,7 @@
         function addEventListeners() {
             document.getElementById('login-btn').addEventListener('click', handleLogin);
             document.getElementById('logout-btn').addEventListener('click', handleLogout);
-
-            Object.keys(tabButtons).forEach(key => {
-                tabButtons[key].addEventListener('click', () => switchMainView(key));
-            });
-
-            // Chatbot Listeners
+            tabButtons.forEach(btn => btn.addEventListener('click', () => switchMainView(btn.dataset.view)));
             chatSendBtn.addEventListener('click', handleChatSubmit);
             chatInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') handleChatSubmit(); });
             imageInput.addEventListener('change', (e) => handleImageFile(e.target.files[0]));
@@ -241,38 +200,16 @@
 
         async function handleLogin(e) {
             e.preventDefault();
-            const loginBtn = e.target;
             const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value.trim();
-            const errorElement = document.getElementById('login-error');
-
-            if (!email || !password) {
-                errorElement.textContent = 'Vui lòng nhập email và mật khẩu.';
+            if (email === 'admin@gmail.com' && password === '123') {
+                USER_EMAIL = 'aibizmanager@gmail.com';
+                showView('app');
+                switchMainView('chatbot');
+            } else {
+                const errorElement = document.getElementById('login-error');
+                errorElement.textContent = 'Email hoặc mật khẩu không chính xác.';
                 errorElement.classList.remove('hidden');
-                return;
-            }
-
-            loginBtn.disabled = true;
-            loginBtn.textContent = 'Đang đăng nhập...';
-            errorElement.classList.add('hidden');
-
-            try {
-                // Hardcoded fallback login
-                if (email === 'admin@gmail.com' && password === '123' || email === 'user@gmail.com' && password === '123') {
-                    USER_EMAIL = 'aibizmanager@gmail.com'; // Use a default email for API calls
-                    showView('app');
-                    switchMainView('chatbot');
-                } else {
-                     errorElement.textContent = 'Email hoặc mật khẩu không chính xác.';
-                     errorElement.classList.remove('hidden');
-                }
-            } catch (error) {
-                console.error('Login error:', error);
-                errorElement.textContent = 'Đã xảy ra lỗi. Vui lòng thử lại.';
-                errorElement.classList.remove('hidden');
-            } finally {
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Đăng nhập';
             }
         }
 
@@ -288,10 +225,18 @@
         }
 
         function switchMainView(viewName) {
-            Object.keys(mainViews).forEach(key => {
-                mainViews[key].classList.toggle('hidden', key !== viewName);
-                tabButtons[key].classList.toggle('active', key === viewName);
-            });
+            tabButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.view === viewName));
+            Object.keys(mainViews).forEach(key => mainViews[key].classList.toggle('hidden', key !== viewName));
+            // Lazy load content for other tabs
+            if (viewName === 'dashboard' && mainViews.dashboard.innerHTML.trim() === '') {
+                mainViews.dashboard.innerHTML = `<p class="text-center p-8">Đang tải nội dung Dashboard...</p>`;
+            }
+            if (viewName === 'bai-viet' && mainViews['bai-viet'].innerHTML.trim() === '') {
+                 mainViews['bai-viet'].innerHTML = `<p class="text-center p-8">Đang tải nội dung Bài Viết...</p>`;
+            }
+            if (viewName === 'dinh-ky' && mainViews['dinh-ky'].innerHTML.trim() === '') {
+                 mainViews['dinh-ky'].innerHTML = `<p class="text-center p-8">Đang tải nội dung Định Kỳ...</p>`;
+            }
         }
         
         async function handleChatSubmit() {
@@ -300,15 +245,12 @@
             if ((!userInput && !selectedImageFile) || isProcessing) return;
             
             setLoadingState(true);
-
             if (userInput) appendChatMessage(userInput, 'user');
             if (selectedImageFile) appendChatMessage(`[Đã gửi 1 ảnh]`, 'user');
             
             showTypingIndicator(true);
-
             if (selectedImageFile) {
-                const prompt = userInput || "Phân tích ảnh này.";
-                await handleImageAnalysis(selectedImageFile, prompt);
+                await handleImageAnalysis(selectedImageFile, userInput || "Phân tích ảnh này.");
             } else {
                 await handleTextChat(userInput);
             }
@@ -335,8 +277,7 @@
         
         async function handleImageAnalysis(file, userInput) {
             if (!GEMINI_API_KEY || GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY') {
-                appendChatMessage("Lỗi: Vui lòng cấu hình GEMINI_API_KEY.", 'ai');
-                return;
+                return appendChatMessage("Lỗi: Vui lòng cấu hình GEMINI_API_KEY.", 'ai');
             }
             try {
                 const base64Image = await fileToBase64(file);
@@ -347,8 +288,7 @@
                 });
                 if (!response.ok) throw new Error(`API error: ${response.status}`);
                 const result = await response.json();
-                const aiResponse = result.candidates?.[0]?.content.parts[0].text || 'Không nhận được phản hồi.';
-                appendChatMessage(aiResponse, 'ai');
+                appendChatMessage(result.candidates?.[0]?.content.parts[0].text || 'Không nhận được phản hồi.', 'ai');
             } catch (error) {
                 appendChatMessage("Lỗi phân tích ảnh: " + error.message, 'ai');
             }
@@ -356,16 +296,14 @@
 
         function showTypingIndicator(show) {
             let indicator = document.getElementById('typing-indicator');
+            if (indicator) indicator.remove();
             if (show) {
-                if (indicator) indicator.remove();
                 indicator = document.createElement('div');
                 indicator.id = 'typing-indicator';
                 indicator.className = 'flex justify-start';
-                indicator.innerHTML = `<div class="chat-bubble-ai p-3 rounded-lg flex items-center space-x-1"><div class="typing-dot w-2 h-2 bg-gray-400 rounded-full"></div><div class="typing-dot w-2 h-2 bg-gray-400 rounded-full"></div><div class="typing-dot w-2 h-2 bg-gray-400 rounded-full"></div></div>`;
+                indicator.innerHTML = `<div class="chat-bubble-ai p-3 rounded-lg"><div class="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div></div>`;
                 chatMessages.appendChild(indicator);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
-            } else {
-                if (indicator) indicator.remove();
             }
         }
 
@@ -374,7 +312,7 @@
             const wrapper = document.createElement('div');
             wrapper.className = `flex w-full ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
             const bubble = document.createElement('div');
-            bubble.className = `p-3 rounded-lg max-w-lg lg:max-w-xl prose prose-invert prose-sm ${sender === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'}`;
+            bubble.className = `p-3 rounded-lg max-w-lg prose prose-invert prose-sm ${sender === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'}`;
             bubble.innerHTML = marked.parse(message);
             wrapper.appendChild(bubble);
             chatMessages.appendChild(wrapper);
@@ -382,7 +320,7 @@
         }
 
         function handleImageFile(file) {
-            if (file && file.type.startsWith('image/')) {
+            if (file?.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = (e) => { 
                     imagePreview.src = e.target.result; 
@@ -395,7 +333,6 @@
         function clearImage() {
             imageInput.value = ''; 
             imagePreviewContainer.classList.add('hidden'); 
-            imagePreview.src = '';
         }
 
         function fileToBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result); reader.onerror = reject; }); }
