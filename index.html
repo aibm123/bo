@@ -68,7 +68,7 @@
     <!-- Login View -->
     <div id="view-login" class="flex items-center justify-center min-h-screen p-4">
         <div class="w-full max-w-md p-6 sm:p-8 space-y-6 bg-gray-800 rounded-lg shadow-xl">
-            <div>
+             <div>
                 <h2 class="text-2xl font-bold text-center text-white">Đăng nhập</h2>
                 <form id="login-form" class="space-y-6 mt-6">
                     <div>
@@ -84,12 +84,30 @@
                 <p id="login-error" class="text-sm text-center text-red-400 mt-2 hidden"></p>
             </div>
             <div class="border-t border-gray-700 pt-6 space-y-6">
-                <div class="text-center"><h1 class="text-3xl font-bold text-white">AI BIZ OWNER</h1></div>
+                <div class="text-center">
+                    <h1 class="text-3xl font-bold text-white">AI BIZ OWNER</h1>
+                </div>
                 <div class="space-y-4 text-gray-300 text-sm text-center">
                     <div>
-                        <h3 class="font-semibold text-white mb-2">Tài khoản chung:</h3>
-                        <ul class="list-inside space-y-1">
+                        <h3 class="font-semibold text-white mb-2">Tài khoản admin & user chung:</h3>
+                        <ul class="list-disc list-inside space-y-1 pl-2 inline-block text-left">
                             <li><span class="font-mono bg-gray-700 px-1 rounded">admin@gmail.com</span> / <span class="font-mono bg-gray-700 px-1 rounded">123</span></li>
+                            <li><span class="font-mono bg-gray-700 px-1 rounded">user@gmail.com</span> / <span class="font-mono bg-gray-700 px-1 rounded">123</span></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-white mb-2">Danh sách Apps mở rộng:</h3>
+                        <ul class="list-disc list-inside space-y-1 pl-2 inline-block text-left">
+                            <li>SIS: <a href="https://sis.aibm.space" target="_blank" class="text-indigo-400 hover:underline">https://sis.aibm.space</a></li>
+                            <li>HIS: <a href="https://his.aibm.space" target="_blank" class="text-indigo-400 hover:underline">https://his.aibm.space</a></li>
+                            <li>POD: <a href="https://pod.aibm.space" target="_blank" class="text-indigo-400 hover:underline">https://pod.aibm.space</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-white mb-2">Link database chung & tài khoản:</h3>
+                         <p><a href="https://aibm.store/workspace/164" target="_blank" class="text-indigo-400 hover:underline break-all">https://aibm.store/workspace/164</a></p>
+                        <ul class="list-disc list-inside space-y-1 pl-2 mt-1 inline-block text-left">
+                            <li><span class="font-mono bg-gray-700 px-1 rounded">realtrendasia@gmail.com</span> / <span class="font-mono bg-gray-700 px-1 rounded">aibizmanager</span></li>
                         </ul>
                     </div>
                 </div>
@@ -98,7 +116,7 @@
     </div>
     
     <!-- Main App View -->
-    <div id="view-app" class="hidden h-screen flex flex-col">
+    <div id="view-app" class="hidden min-h-screen flex flex-col">
         <header class="container mx-auto px-4 pt-4 md:px-6 md:pt-6 flex-shrink-0 flex flex-col md:flex-row justify-between items-start">
             <div>
                 <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-white">AI Agent Dashboard</h1>
@@ -111,10 +129,10 @@
         <div class="container mx-auto px-4 md:px-6 flex-shrink-0 mt-4">
             <div class="border-b border-gray-700">
                 <nav class="-mb-px flex space-x-2 sm:space-x-6 overflow-x-auto" aria-label="Tabs">
-                    <button data-view="chatbot" class="tab-btn active whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Chatbot</button>
-                    <button data-view="dashboard" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Tổng quan</button>
-                    <button data-view="bai-viet" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Bài viết</button>
-                    <button data-view="dinh-ky" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Định kỳ</button>
+                    <button id="tab-chatbot" class="tab-btn active whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Chatbot</button>
+                    <button id="tab-dashboard" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Tổng quan</button>
+                    <button id="tab-bai-viet" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Bài viết</button>
+                    <button id="tab-dinh-ky" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Định kỳ</button>
                 </nav>
             </div>
         </div>
@@ -141,13 +159,13 @@
                 </div>
             </div>
             <div id="view-dashboard" class="hidden h-full overflow-y-auto space-y-6">
-                <!-- Dashboard content will be dynamically loaded here -->
+                 <!-- Dashboard content from original file -->
             </div>
             <div id="view-bai-viet" class="hidden h-full overflow-y-auto">
-                <!-- Bài viết content will be dynamically loaded here -->
+                <!-- Bai-viet content from original file -->
             </div>
             <div id="view-dinh-ky" class="hidden h-full overflow-y-auto">
-                <!-- Định kỳ content will be dynamically loaded here -->
+                <!-- Dinh-ky content from original file -->
             </div>
         </main>
     </div>
@@ -155,9 +173,8 @@
     <script type="module">
         // --- CONFIG ---
         const WEBHOOK_URL = 'https://aps.aibm.space/webhook/bd1';
-        let USER_EMAIL = ''; 
+        let USER_EMAIL = 'aibizmanager@gmail.com'; // Default email
         const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY';
-
         let isProcessing = false;
 
         // --- DOM ELEMENTS ---
@@ -169,9 +186,12 @@
             'bai-viet': document.getElementById('view-bai-viet'),
             'dinh-ky': document.getElementById('view-dinh-ky')
         };
-        const tabButtons = document.querySelectorAll('.tab-btn');
-        
-        // Chatbot elements
+        const tabButtons = {
+            chatbot: document.getElementById('tab-chatbot'),
+            dashboard: document.getElementById('tab-dashboard'),
+            'bai-viet': document.getElementById('tab-bai-viet'),
+            'dinh-ky': document.getElementById('tab-dinh-ky'),
+        };
         const chatMessages = document.getElementById('chat-messages');
         const chatInput = document.getElementById('chat-input');
         const chatSendBtn = document.getElementById('chat-send-btn');
@@ -190,7 +210,9 @@
         function addEventListeners() {
             document.getElementById('login-btn').addEventListener('click', handleLogin);
             document.getElementById('logout-btn').addEventListener('click', handleLogout);
-            tabButtons.forEach(btn => btn.addEventListener('click', () => switchMainView(btn.dataset.view)));
+            Object.keys(tabButtons).forEach(key => {
+                tabButtons[key].addEventListener('click', () => switchMainView(key));
+            });
             chatSendBtn.addEventListener('click', handleChatSubmit);
             chatInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') handleChatSubmit(); });
             imageInput.addEventListener('change', (e) => handleImageFile(e.target.files[0]));
@@ -202,8 +224,8 @@
             e.preventDefault();
             const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value.trim();
-            if (email === 'admin@gmail.com' && password === '123') {
-                USER_EMAIL = 'aibizmanager@gmail.com';
+             // Simplified login for this example
+            if ((email === 'admin@gmail.com' || email === 'user@gmail.com') && password === '123') {
                 showView('app');
                 switchMainView('chatbot');
             } else {
@@ -214,7 +236,6 @@
         }
 
         function handleLogout() {
-            USER_EMAIL = '';
             document.getElementById('login-form').reset();
             showView('login');
         }
@@ -225,36 +246,34 @@
         }
 
         function switchMainView(viewName) {
-            tabButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.view === viewName));
+            Object.keys(tabButtons).forEach(key => tabButtons[key].classList.toggle('active', key === viewName));
             Object.keys(mainViews).forEach(key => mainViews[key].classList.toggle('hidden', key !== viewName));
-            // Lazy load content for other tabs
-            if (viewName === 'dashboard' && mainViews.dashboard.innerHTML.trim() === '') {
-                mainViews.dashboard.innerHTML = `<p class="text-center p-8">Đang tải nội dung Dashboard...</p>`;
+            
+            if (viewName === 'dashboard' && mainViews.dashboard.children.length === 0) {
+                loadDashboardView();
             }
-            if (viewName === 'bai-viet' && mainViews['bai-viet'].innerHTML.trim() === '') {
-                 mainViews['bai-viet'].innerHTML = `<p class="text-center p-8">Đang tải nội dung Bài Viết...</p>`;
+            if (viewName === 'bai-viet' && mainViews['bai-viet'].children.length === 0) {
+                loadBaiVietView();
             }
-            if (viewName === 'dinh-ky' && mainViews['dinh-ky'].innerHTML.trim() === '') {
-                 mainViews['dinh-ky'].innerHTML = `<p class="text-center p-8">Đang tải nội dung Định Kỳ...</p>`;
+            if (viewName === 'dinh-ky' && mainViews['dinh-ky'].children.length === 0) {
+                loadDinhKyView();
             }
         }
         
+        // --- CHATBOT FUNCTIONS (RESTORED) ---
         async function handleChatSubmit() {
             const userInput = chatInput.value.trim();
             const selectedImageFile = imageInput.files[0];
             if ((!userInput && !selectedImageFile) || isProcessing) return;
-            
             setLoadingState(true);
             if (userInput) appendChatMessage(userInput, 'user');
             if (selectedImageFile) appendChatMessage(`[Đã gửi 1 ảnh]`, 'user');
-            
             showTypingIndicator(true);
             if (selectedImageFile) {
                 await handleImageAnalysis(selectedImageFile, userInput || "Phân tích ảnh này.");
             } else {
                 await handleTextChat(userInput);
             }
-
             chatInput.value = '';
             clearImage();
             setLoadingState(false);
@@ -262,36 +281,22 @@
 
         async function handleTextChat(userInput) {
             try {
-                const response = await fetch(WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ task: "chatbot", prompt: userInput, threadId: "digital-chat", email: USER_EMAIL })
-                });
+                const response = await fetch(WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ task: "chatbot", prompt: userInput, threadId: "digital-chat", email: USER_EMAIL }) });
                 if (!response.ok) throw new Error(`Webhook error: ${response.status}`);
                 const result = await response.json();
                 appendChatMessage(result[0]?.output || "Lỗi, không có phản hồi.", 'ai');
-            } catch (error) {
-                appendChatMessage(`Lỗi: ${error.message}`, 'ai');
-            }
+            } catch (error) { appendChatMessage(`Lỗi: ${error.message}`, 'ai'); }
         }
         
         async function handleImageAnalysis(file, userInput) {
-            if (!GEMINI_API_KEY || GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY') {
-                return appendChatMessage("Lỗi: Vui lòng cấu hình GEMINI_API_KEY.", 'ai');
-            }
+            if (!GEMINI_API_KEY || GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY') { return appendChatMessage("Lỗi: Vui lòng cấu hình GEMINI_API_KEY.", 'ai'); }
             try {
                 const base64Image = await fileToBase64(file);
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: userInput }, { inline_data: { mime_type: file.type, data: base64Image.split(',')[1] } }] }] })
-                });
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: userInput }, { inline_data: { mime_type: file.type, data: base64Image.split(',')[1] } }] }] }) });
                 if (!response.ok) throw new Error(`API error: ${response.status}`);
                 const result = await response.json();
                 appendChatMessage(result.candidates?.[0]?.content.parts[0].text || 'Không nhận được phản hồi.', 'ai');
-            } catch (error) {
-                appendChatMessage("Lỗi phân tích ảnh: " + error.message, 'ai');
-            }
+            } catch (error) { appendChatMessage("Lỗi phân tích ảnh: " + error.message, 'ai'); }
         }
 
         function showTypingIndicator(show) {
@@ -342,6 +347,88 @@
             chatSendBtn.disabled = isLoading; 
             chatInput.disabled = isLoading;
         }
+
+        // --- DYNAMIC CONTENT LOADING (RESTORED) ---
+        function loadDashboardView() {
+            mainViews.dashboard.innerHTML = `
+                <div class="card">
+                     <div class="p-4 border-b border-gray-700">
+                         <nav class="flex space-x-2" aria-label="Dashboard Tabs">
+                             <button data-tab="product" class="dashboard-tab-btn active px-4 py-2 text-sm font-medium rounded-md">Product</button>
+                             <button data-tab="character" class="dashboard-tab-btn px-4 py-2 text-sm font-medium text-gray-300 rounded-md">Character</button>
+                         </nav>
+                     </div>
+                     <div class="p-6">
+                         <div id="dashboard-tab-content-product" class="dashboard-tab-content space-y-6">
+                            <h4 class="text-md font-semibold text-white">Thêm sản phẩm mới</h4>
+                            <form class="grid grid-cols-1 md:grid-cols-3 gap-4" autocomplete="off">
+                                <input type="text" placeholder="Tên sản phẩm" class="w-full px-3 py-2 rounded-md input-field">
+                                <input type="text" placeholder="SKU" class="w-full px-3 py-2 rounded-md input-field">
+                                <button type="submit" class="w-full md:w-auto px-4 py-2 bg-indigo-600 text-white rounded-md">Thêm</button>
+                            </form>
+                            <p class="text-center text-gray-400 mt-4">Dữ liệu sản phẩm sẽ được hiển thị ở đây.</p>
+                         </div>
+                     </div>
+                </div>`;
+        }
+
+        function loadBaiVietView() {
+            mainViews['bai-viet'].innerHTML = `
+                 <div id="bai-viet-list-view">
+                    <h1 class="text-3xl font-bold text-white mb-6">Bài viết</h1>
+                    <div class="card p-6 rounded-lg mb-6">
+                        <form id="add-campaign-form" autocomplete="off">
+                            <input type="text" name="campaign-name" class="input-field w-full rounded-md p-3" placeholder="Nhập tên chiến dịch mới..." required>
+                            <button type="submit" class="mt-4 w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white rounded-md px-6 py-3 font-semibold"><i class="fas fa-plus mr-2"></i>Tạo Chiến dịch</button>
+                        </form>
+                    </div>
+                    <div class="card rounded-lg overflow-hidden">
+                        <div id="campaign-list" class="space-y-1 p-2">
+                             <p class="p-4 text-center text-gray-400">Chưa có chiến dịch nào.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            const form = mainViews['bai-viet'].querySelector('#add-campaign-form');
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const input = form.querySelector('input');
+                if(input.value.trim()){
+                    alert(`Đã tạo chiến dịch: ${input.value}`);
+                    input.value = '';
+                }
+            });
+        }
+
+        function loadDinhKyView() {
+             mainViews['dinh-ky'].innerHTML = `
+                <div id="dinh-ky-list-view">
+                    <h1 class="text-3xl font-bold text-white mb-6">Định kỳ</h1>
+                     <div class="card p-6 rounded-lg mb-6">
+                         <h2 class="text-xl font-semibold mb-2 text-white">Thêm nhiệm vụ theo dõi Website</h2>
+                         <form id="add-task-form" autocomplete="off" class="space-y-4">
+                             <input name="task-input" class="input-field w-full rounded-md p-3" placeholder="https://www.example.com/news" required>
+                             <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-md">Thêm</button>
+                         </form>
+                    </div>
+                    <div class="card rounded-lg overflow-hidden mt-6">
+                        <div id="task-list" class="p-2">
+                             <p class="p-4 text-center text-gray-400">Chưa có nhiệm vụ nào.</p>
+                        </div>
+                    </div>
+                </div>
+             `;
+             const form = mainViews['dinh-ky'].querySelector('#add-task-form');
+             form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const input = form.querySelector('input');
+                if(input.value.trim()){
+                     alert(`Đã thêm nhiệm vụ: ${input.value}`);
+                     input.value = '';
+                }
+             });
+        }
+
     </script>
 </body>
 </html>
