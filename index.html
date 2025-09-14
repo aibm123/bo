@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AI Agent & Digital Dashboard</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -25,10 +25,16 @@
             --primary: #6366f1; /* indigo-500 */
             --primary-hover: #4f46e5; /* indigo-600 */
         }
+        html {
+            height: -webkit-fill-available;
+        }
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--background);
             color: var(--text-primary);
+            min-height: 100vh;
+            /* Mobile browser viewport height fix */
+            min-height: -webkit-fill-available; 
         }
         .tab-btn.active {
             border-color: var(--primary);
@@ -55,22 +61,6 @@
             border-radius: 0.75rem;
             border: 1px solid var(--border);
         }
-        .kpi-value {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--text-primary);
-        }
-        .kpi-label {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-        }
-        .table-auto th, .table-auto td {
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--border);
-        }
-        .table-auto th {
-            background-color: #374151;
-        }
         .input-field {
             background-color: var(--border);
             border: 1px solid #4b5563;
@@ -81,11 +71,6 @@
             border-color: var(--primary);
             box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5);
         }
-        .list-item { cursor: pointer; transition: background-color 0.2s; }
-        .list-item:hover { background-color: #374151; }
-        .status-badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
-        .status-published { background-color: #10b981; color: #ffffff; }
-        .status-draft { background-color: #6b7280; color: #ffffff; }
     </style>
 </head>
 <body class="bg-gray-900">
@@ -125,9 +110,9 @@
                     <div>
                         <h3 class="font-semibold text-white mb-2">Danh sách Apps mở rộng:</h3>
                         <ul class="list-disc list-inside space-y-1 pl-2 inline-block text-left">
-                            <li>SIS cho trung tâm đào tạo: <a href="https://sis.aibm.space" target="_blank" class="text-indigo-400 hover:underline">https://sis.aibm.space</a></li>
-                            <li>HIS cho phòng khám tư: <a href="https://his.aibm.space" target="_blank" class="text-indigo-400 hover:underline">https://his.aibm.space</a></li>
-                            <li>POD cho nhà sáng tạo: <a href="https://pod.aibm.space" target="_blank" class="text-indigo-400 hover:underline">https://pod.aibm.space</a></li>
+                            <li>SIS: <a href="https://sis.aibm.space" target="_blank" class="text-indigo-400 hover:underline">https://sis.aibm.space</a></li>
+                            <li>HIS: <a href="https://his.aibm.space" target="_blank" class="text-indigo-400 hover:underline">https://his.aibm.space</a></li>
+                            <li>POD: <a href="https://pod.aibm.space" target="_blank" class="text-indigo-400 hover:underline">https://pod.aibm.space</a></li>
                         </ul>
                     </div>
                     <div>
@@ -143,260 +128,94 @@
     </div>
     
     <!-- Main App View -->
-    <div id="view-app" class="hidden min-h-screen flex flex-col">
-        <div class="container mx-auto p-4 md:p-6 flex flex-col flex-grow">
-            <header class="flex flex-col md:flex-row justify-between items-start mb-4 flex-shrink-0">
-                <div>
-                    <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-white">AI Agent & Digital Dashboard</h1>
-                    <p class="text-gray-400 mt-1">Phân tích hiệu suất các kênh digital và trò chuyện với AI.</p>
-                </div>
-                <button id="logout-btn" class="mt-4 md:mt-0 flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md shadow-sm">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span>Đăng xuất</span>
-                </button>
-            </header>
+    <div id="view-app" class="hidden h-screen flex flex-col">
+        <!-- Header -->
+        <header class="container mx-auto px-4 pt-4 md:px-6 md:pt-6 flex-shrink-0 flex flex-col md:flex-row justify-between items-start">
+            <div>
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-white">AI Agent & Digital Dashboard</h1>
+                <p class="text-gray-400 mt-1 text-sm sm:text-base">Phân tích và trò chuyện với AI.</p>
+            </div>
+            <button id="logout-btn" class="mt-4 md:mt-0 flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md shadow-sm">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Đăng xuất</span>
+            </button>
+        </header>
 
-            <div class="border-b border-gray-700 mb-6 flex-shrink-0">
+        <!-- Navigation -->
+        <div class="container mx-auto px-4 md:px-6 flex-shrink-0 mt-4">
+            <div class="border-b border-gray-700">
                 <nav class="-mb-px flex space-x-2 sm:space-x-6 overflow-x-auto" aria-label="Tabs">
-                    <button id="tab-chatbot" class="tab-btn active whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm text-gray-400 hover:text-white border-transparent">Chatbot</button>
-                    <button id="tab-dashboard" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm text-gray-400 hover:text-white border-transparent">Tổng quan</button>
-                    <button id="tab-bai-viet" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm text-gray-400 hover:text-white border-transparent">Bài viết</button>
-                    <button id="tab-dinh-ky" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm text-gray-400 hover:text-white border-transparent">Định kỳ</button>
+                    <button id="tab-chatbot" class="tab-btn active whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Chatbot</button>
+                    <button id="tab-dashboard" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Tổng quan</button>
+                    <button id="tab-bai-viet" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Bài viết</button>
+                    <button id="tab-dinh-ky" class="tab-btn whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Định kỳ</button>
                 </nav>
             </div>
-
-            <main class="flex-grow min-h-0">
-                <!-- Dashboard View -->
-                <div id="view-dashboard" class="hidden space-y-6 h-full overflow-y-auto">
-                    <div class="card">
-                        <div class="p-4 border-b border-gray-700">
-                            <nav class="flex space-x-2 overflow-x-auto" aria-label="Dashboard Tabs">
-                                <button data-tab="product" class="dashboard-tab-btn active px-4 py-2 text-sm font-medium rounded-md whitespace-nowrap">Product</button>
-                                <button data-tab="character" class="dashboard-tab-btn px-4 py-2 text-sm font-medium text-gray-300 rounded-md whitespace-nowrap">Character</button>
-                                <button data-tab="segment" class="dashboard-tab-btn px-4 py-2 text-sm font-medium text-gray-300 rounded-md whitespace-nowrap">Segment - Channel</button>
-                            </nav>
-                        </div>
-                        <div class="p-4 sm:p-6">
-                            <div id="dashboard-tab-content-product" class="dashboard-tab-content space-y-6">
-                                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 gap-2">
-                                    <h4 class="text-md font-semibold text-white">Thêm sản phẩm mới</h4>
-                                    <button id="refresh-product-btn" class="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-sm rounded-md"><i class="fa-solid fa-sync mr-2"></i>Làm mới</button>
-                                </div>
-                                <form class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <input type="text" placeholder="Tên sản phẩm" class="w-full px-3 py-2 rounded-md input-field">
-                                    <input type="text" placeholder="SKU" class="w-full px-3 py-2 rounded-md input-field">
-                                    <button type="submit" class="w-full md:w-auto px-4 py-2 bg-indigo-600 text-white rounded-md">Thêm</button>
-                                </form>
-                                <div class="overflow-x-auto">
-                                    <table class="w-full text-left text-sm table-auto">
-                                        <thead class="text-gray-300"><tr><th>Tên sản phẩm</th><th>SKU</th><th>Ngày tạo</th><th>Hành động</th></tr></thead>
-                                        <tbody>
-                                            <!-- Product data will be rendered here -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div id="dashboard-tab-content-character" class="dashboard-tab-content hidden space-y-6">
-                                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 gap-2">
-                                    <h4 class="text-md font-semibold text-white">Thêm Character mới</h4>
-                                    <button id="refresh-character-btn" class="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-sm rounded-md"><i class="fa-solid fa-sync mr-2"></i>Làm mới</button>
-                                </div>
-                                <form class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <input type="text" placeholder="Tên Character" class="w-full px-3 py-2 rounded-md input-field">
-                                    <input type="text" placeholder="Mô tả" class="w-full px-3 py-2 rounded-md input-field">
-                                    <button type="submit" class="w-full md:w-auto px-4 py-2 bg-indigo-600 text-white rounded-md">Thêm</button>
-                                </form>
-                                <div class="overflow-x-auto">
-                                    <table class="w-full text-left text-sm table-auto">
-                                        <thead class="text-gray-300"><tr><th>Tên Character</th><th>Mô tả</th><th>Hành động</th></tr></thead>
-                                        <tbody>
-                                            <!-- Character data will be rendered here -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div id="dashboard-tab-content-segment" class="dashboard-tab-content hidden space-y-6">
-                                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 gap-2">
-                                    <h4 class="text-md font-semibold text-white">Thêm Segment - Channel mới</h4>
-                                    <button id="refresh-segment-btn" class="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-sm rounded-md"><i class="fa-solid fa-sync mr-2"></i>Làm mới</button>
-                                </div>
-                                <form class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <input type="text" placeholder="Tên Segment" class="w-full px-3 py-2 rounded-md input-field">
-                                    <input type="text" placeholder="Kênh" class="w-full px-3 py-2 rounded-md input-field">
-                                    <button type="submit" class="w-full md:w-auto px-4 py-2 bg-indigo-600 text-white rounded-md">Thêm</button>
-                                </form>
-                                <div class="overflow-x-auto">
-                                    <table class="w-full text-left text-sm table-auto">
-                                        <thead class="text-gray-300"><tr><th>Segment</th><th>Channel</th><th>Hành động</th></tr></thead>
-                                        <tbody>
-                                            <!-- Segment data will be rendered here -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="legacy-dashboard-content" class="hidden">
-                        <div class="flex items-center mb-4">
-                            <h3 class="text-lg font-semibold text-white">Hiệu suất theo ngày</h3>
-                            <button id="refresh-legacy-btn" class="ml-4 px-3 py-1 bg-gray-600 hover:bg-gray-700 text-sm rounded-md"><i class="fa-solid fa-sync mr-2"></i>Làm mới</button>
-                        </div>
-                        <div id="legacy-data-wrapper">
-                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6 mb-6">
-                                <div class="card p-5"><p class="kpi-label">Wordpress Reach</p><p id="kpi-wp-reach" class="kpi-value">...</p></div>
-                                <div class="card p-5"><p class="kpi-label">Fanpage Reach</p><p id="kpi-fp-reach" class="kpi-value">...</p></div>
-                                <div class="card p-5"><p class="kpi-label">TikTok Views</p><p id="kpi-tt-views" class="kpi-value">...</p></div>
-                                <div class="card p-5"><p class="kpi-label">Zalo Sent</p><p id="kpi-zl-sent" class="kpi-value">...</p></div>
-                                <div class="card p-5"><p class="kpi-label">Zalo Users</p><p id="kpi-zl-users" class="kpi-value">...</p></div>
-                            </div>
-                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                <div class="lg:col-span-2 card p-4 sm:p-6">
-                                    <div class="h-80"><canvas id="timeSeriesChart"></canvas></div>
-                                </div>
-                                <div class="card p-4 sm:p-6">
-                                    <h3 id="zalo-chart-title" class="text-lg font-semibold text-white mb-4">Phân khúc Zalo Users</h3>
-                                    <div class="h-80"><canvas id="zaloSegmentsChart"></canvas></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="dashboard-loading" class="text-center p-10 hidden">
-                            <i class="fas fa-spinner fa-spin text-4xl text-indigo-400"></i>
-                            <p class="mt-4 text-gray-400">Đang tải dữ liệu dashboard...</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="view-bai-viet" class="hidden h-full overflow-y-auto">
-                    <div id="bai-viet-list-view">
-                        <h1 class="text-2xl sm:text-3xl font-bold text-white mb-6">Bài viết</h1>
-                        <div class="card p-4 sm:p-6 rounded-lg mb-6">
-                            <form id="add-campaign-form">
-                                <input type="text" name="campaign-name" class="input-field w-full rounded-md p-3" placeholder="Nhập tên chiến dịch mới..." required>
-                                <button type="submit" class="mt-4 w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white rounded-md px-6 py-3 font-semibold"><i class="fas fa-plus mr-2"></i>Tạo Chiến dịch</button>
-                            </form>
-                        </div>
-                        <div class="card rounded-lg overflow-hidden">
-                            <div id="campaign-list" class="space-y-1 p-2">
-                                <!-- Campaign list will be rendered here -->
-                            </div>
-                        </div>
-                    </div>
-                    <div id="bai-viet-detail-view" class="hidden">
-                        <button class="back-to-list-btn mb-4 py-2 px-4 rounded-md bg-gray-600 hover:bg-gray-700 text-white"><i class="fas fa-arrow-left mr-2"></i> Quay lại</button>
-                        <h2 id="campaign-detail-title" class="text-2xl font-bold text-white mb-4"></h2>
-                        <div id="post-list-container" class="space-y-4">
-                            <!-- Post list will be rendered here -->
-                        </div>
-                    </div>
-                </div>
-
-                <div id="view-dinh-ky" class="hidden h-full overflow-y-auto">
-                    <div id="dinh-ky-list-view">
-                        <h1 class="text-2xl sm:text-3xl font-bold text-white mb-6">Định kỳ</h1>
-                        <div class="card p-4 sm:p-6 rounded-lg mb-6">
-                            <h2 class="text-xl font-semibold mb-2 text-white">Thêm nhiệm vụ theo dõi Website</h2>
-                            <form id="add-task-form" class="flex flex-col sm:flex-row gap-4 mt-4">
-                                <input name="task-input" class="input-field flex-grow p-3 rounded-md" placeholder="https://www.example.com/news" required>
-                                <select name="task-frequency" class="input-field p-3 rounded-md">
-                                    <option value="3270">Hàng ngày</option>
-                                    <option value="3271">Hàng tuần</option>
-                                </select>
-                                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-md">Thêm</button>
-                            </form>
-                        </div>
-                        <div class="card rounded-lg overflow-x-auto">
-                            <table class="w-full text-left">
-                                <thead>
-                                    <tr class="bg-gray-700">
-                                        <th scope="col" class="p-4 font-semibold text-gray-300">Nhiệm vụ</th>
-                                        <th scope="col" class="p-4 font-semibold text-gray-300">Tần suất</th>
-                                        <th scope="col" class="p-4 font-semibold text-gray-300">Trạng thái</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="task-list-body" class="divide-y divide-gray-700">
-                                    <!-- Task list will be rendered here -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div id="dinh-ky-detail-view" class="hidden">
-                        <button class="back-to-list-btn mb-4 py-2 px-4 rounded-md bg-gray-600 hover:bg-gray-700 text-white"><i class="fas fa-arrow-left mr-2"></i> Quay lại</button>
-                        <h2 id="task-detail-title" class="text-2xl font-bold text-white mb-4"></h2>
-                        <div id="log-list-container" class="space-y-4">
-                            <!-- Log list will be rendered here -->
-                        </div>
-                    </div>
-                </div>
-
-                <div id="view-chatbot" class="h-full flex flex-col">
-                    <div class="bg-gray-800 rounded-lg p-4 flex flex-col border border-gray-700 h-full">
-                        <div id="chat-messages" class="flex-grow overflow-y-auto mb-4 pr-2 space-y-4">
-                            <div class="flex justify-start"><div class="chat-bubble-ai p-3 rounded-lg max-w-lg">Xin chào! Tôi là AI Agent.</div></div>
-                        </div>
-                        <div class="flex-shrink-0 flex flex-col gap-2 border-t border-gray-700 pt-4">
-                            <div class="flex-shrink-0 flex items-center gap-2">
-                                <button id="toggle-image-upload" class="flex-shrink-0 flex items-center justify-center space-x-2 px-3 py-2 bg-gray-600 hover:bg-gray-700 text-gray-300 rounded-lg"><i class="fa-solid fa-image"></i><span id="toggle-text" class="hidden sm:inline">Thêm ảnh</span></button>
-                                <input type="text" id="chat-input" placeholder="Hỏi AI..." class="flex-grow w-full px-4 py-2 rounded-lg input-field">
-                                <button id="chat-send-btn" class="sm:w-auto bg-indigo-600 text-white font-semibold px-5 py-2 rounded-lg hover:bg-indigo-700 disabled:bg-indigo-800">Gửi</button>
-                            </div>
-                            <div id="image-upload-container" class="flex-shrink-0 mt-2 hidden">
-                                <div id="image-upload-area" class="p-5 text-center cursor-pointer hover:bg-gray-800 rounded-lg"><i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-500"></i><p class="text-gray-500 mt-2">Kéo thả ảnh hoặc click để chọn</p><input type="file" id="image-input" accept="image/*" class="hidden"></div>
-                                <div id="image-preview-container" class="hidden mt-3"><div class="flex items-center"><img id="image-preview" class="max-w-xs max-h-40 rounded-md"><button id="remove-image-btn" class="ml-2 text-red-500 hover:text-red-700 text-2xl font-bold">&times;</button></div></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
         </div>
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-4 pb-4 md:px-6 md:pb-6 flex-grow min-h-0 mt-6">
+            <div id="view-chatbot" class="h-full flex flex-col">
+                <div class="bg-gray-800 rounded-lg flex flex-col border border-gray-700 h-full">
+                    <div id="chat-messages" class="flex-grow p-4 overflow-y-auto space-y-4">
+                        <div class="flex justify-start"><div class="chat-bubble-ai p-3 rounded-lg max-w-lg">Xin chào! Tôi là AI Agent.</div></div>
+                    </div>
+                    <div class="flex-shrink-0 p-4 border-t border-gray-700">
+                        <div id="image-preview-container" class="hidden mb-2">
+                             <div class="relative inline-block">
+                                <img id="image-preview" class="max-h-24 rounded-md">
+                                <button id="remove-image-btn" class="absolute top-0 right-0 -mt-2 -mr-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold">&times;</button>
+                             </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="toggle-image-upload" class="flex-shrink-0 px-3 py-2 bg-gray-600 hover:bg-gray-700 text-gray-300 rounded-lg"><i class="fa-solid fa-image"></i></button>
+                            <input type="file" id="image-input" accept="image/*" class="hidden">
+                            <input type="text" id="chat-input" placeholder="Hỏi AI..." class="flex-grow w-full px-4 py-2 rounded-lg input-field">
+                            <button id="chat-send-btn" class="sm:w-auto bg-indigo-600 text-white font-semibold px-5 py-2 rounded-lg hover:bg-indigo-700 disabled:bg-indigo-800">Gửi</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="view-dashboard" class="hidden h-full overflow-y-auto">...</div>
+            <div id="view-bai-viet" class="hidden h-full overflow-y-auto">...</div>
+            <div id="view-dinh-ky" class="hidden h-full overflow-y-auto">...</div>
+        </main>
     </div>
 
 
     <script type="module">
         // --- CONFIG ---
         const WEBHOOK_URL = 'https://aps.aibm.space/webhook/bd1';
-        // User email will be set after successful login
         let USER_EMAIL = ''; 
-        const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY'; // IMPORTANT: Replace with your actual key
+        const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY';
 
         // --- BASEROW API CONFIG ---
         const BASEROW_HOST = 'https://aibm.store';
         const BASEROW_TOKEN = 'VppDkJZikNBGWobtcWfmefao16lpAlmN';
-        const TABLE_IDS = {
-            product: '724',
-            character: '745',
-            segment: '784',
-            campaign: '731',
-            post: '746',
-            task: '795',
-            automated_logs: '744',
-            user: '875'
-        };
+        const TABLE_IDS = { product: '724', character: '745', segment: '784', campaign: '731', post: '746', task: '795', automated_logs: '744', user: '875' };
 
-        // --- CHART INSTANCES ---
-        let timeSeriesChartInstance = null;
-        let zaloSegmentsChartInstance = null;
         let isProcessing = false;
-        let hasLegacyDashboardDataLoaded = false;
-        let hasProductDataLoaded = false;
-        let hasCharacterDataLoaded = false;
-        let hasSegmentDataLoaded = false;
-        let hasCampaignDataLoaded = false;
-        let hasTaskDataLoaded = false;
 
         // --- DOM ELEMENTS ---
         const viewLogin = document.getElementById('view-login'), viewApp = document.getElementById('view-app');
-        const tabChatbot = document.getElementById('tab-chatbot'), tabDashboard = document.getElementById('tab-dashboard'), tabBaiViet = document.getElementById('tab-bai-viet'), tabDinhKy = document.getElementById('tab-dinh-ky');
-        const viewChatbot = document.getElementById('view-chatbot'), viewDashboard = document.getElementById('view-dashboard'), viewBaiViet = document.getElementById('view-bai-viet'), viewDinhKy = document.getElementById('view-dinh-ky');
-        const baiVietListView = document.getElementById('bai-viet-list-view'), baiVietDetailView = document.getElementById('bai-viet-detail-view'), campaignList = document.getElementById('campaign-list');
-        const dinhKyListView = document.getElementById('dinh-ky-list-view'), dinhKyDetailView = document.getElementById('dinh-ky-detail-view');
-        const dashboardTabButtons = document.querySelectorAll('.dashboard-tab-btn'), dashboardTabContents = document.querySelectorAll('.dashboard-tab-content');
+        const mainViews = {
+            chatbot: document.getElementById('view-chatbot'),
+            dashboard: document.getElementById('view-dashboard'),
+            'bai-viet': document.getElementById('view-bai-viet'),
+            'dinh-ky': document.getElementById('view-dinh-ky')
+        };
+        const tabButtons = {
+            chatbot: document.getElementById('tab-chatbot'),
+            dashboard: document.getElementById('tab-dashboard'),
+            'bai-viet': document.getElementById('tab-bai-viet'),
+            'dinh-ky': document.getElementById('tab-dinh-ky')
+        };
         
         // Chatbot elements
         const chatMessages = document.getElementById('chat-messages'), chatInput = document.getElementById('chat-input'), chatSendBtn = document.getElementById('chat-send-btn');
-        const imageUploadArea = document.getElementById('image-upload-area'), imageInput = document.getElementById('image-input'), imagePreviewContainer = document.getElementById('image-preview-container');
+        const imageInput = document.getElementById('image-input'), imagePreviewContainer = document.getElementById('image-preview-container');
         const imagePreview = document.getElementById('image-preview'), removeImageBtn = document.getElementById('remove-image-btn'), toggleImageUpload = document.getElementById('toggle-image-upload');
-        const toggleText = document.getElementById('toggle-text'), imageUploadContainer = document.getElementById('image-upload-container');
+        
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
@@ -405,364 +224,81 @@
         });
 
         function addEventListeners() {
-            document.getElementById('login-btn').addEventListener('click', async (e) => {
-                e.preventDefault();
-                const loginBtn = e.target;
-                const emailInput = document.getElementById('login-email');
-                const passwordInput = document.getElementById('login-password');
-                const errorElement = document.getElementById('login-error');
+            document.getElementById('login-btn').addEventListener('click', handleLogin);
+            document.getElementById('logout-btn').addEventListener('click', handleLogout);
 
-                const email = emailInput.value.trim();
-                const password = passwordInput.value.trim();
-
-                if (!email || !password) {
-                    errorElement.textContent = 'Vui lòng nhập email và mật khẩu.';
-                    errorElement.classList.remove('hidden');
-                    return;
-                }
-
-                loginBtn.disabled = true;
-                loginBtn.textContent = 'Đang đăng nhập...';
-                errorElement.classList.add('hidden');
-
-                try {
-                    const loginUrl = `${BASEROW_HOST}/api/database/rows/table/${TABLE_IDS.user}/?user_field_names=true&filter__email__equal=${encodeURIComponent(email)}`;
-                    const { results } = await apiCall(loginUrl);
-                    
-                    if (results.length > 0 && results[0].pass === password) {
-                        USER_EMAIL = email; // Set the user email globally
-                        showView('app');
-                        switchMainView('chatbot');
-                    } else if (email === 'admin@gmail.com' && password === '123' || email === 'user@gmail.com' && password === '123') {
-                        // Hardcoded fallback login
-                        USER_EMAIL = 'aibizmanager@gmail.com'; // Use a default email for API calls
-                        showView('app');
-                        switchMainView('chatbot');
-                    }
-                    else {
-                        errorElement.textContent = 'Email hoặc mật khẩu không chính xác.';
-                        errorElement.classList.remove('hidden');
-                    }
-                } catch (error) {
-                    console.error('Login error:', error);
-                    errorElement.textContent = 'Đã xảy ra lỗi. Vui lòng thử lại.';
-                    errorElement.classList.remove('hidden');
-                } finally {
-                    loginBtn.disabled = false;
-                    loginBtn.textContent = 'Đăng nhập';
-                }
+            Object.keys(tabButtons).forEach(key => {
+                tabButtons[key].addEventListener('click', () => switchMainView(key));
             });
-            document.getElementById('logout-btn').addEventListener('click', () => {
-                USER_EMAIL = ''; // Clear user email on logout
-                document.getElementById('login-email').value = '';
-                document.getElementById('login-password').value = '';
-                showView('login');
-            });
-
-            tabChatbot.addEventListener('click', () => switchMainView('chatbot'));
-            tabDashboard.addEventListener('click', () => switchMainView('dashboard'));
-            tabBaiViet.addEventListener('click', () => switchMainView('bai-viet'));
-            tabDinhKy.addEventListener('click', () => switchMainView('dinh-ky'));
-            
-            document.querySelectorAll('.back-to-list-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.target.closest('#bai-viet-detail-view, #dinh-ky-detail-view').classList.add('hidden');
-                    e.target.closest('#view-bai-viet, #view-dinh-ky').querySelector('#bai-viet-list-view, #dinh-ky-list-view').classList.remove('hidden');
-                });
-            });
-
-            dashboardTabButtons.forEach(button => { button.addEventListener('click', () => switchDashboardTab(button.dataset.tab)); });
-            
-            document.getElementById('refresh-legacy-btn').addEventListener('click', fetchDashboardData);
-            document.getElementById('refresh-product-btn').addEventListener('click', renderProductTab);
-            document.getElementById('refresh-character-btn').addEventListener('click', renderCharacterTab);
-            document.getElementById('refresh-segment-btn').addEventListener('click', renderSegmentTab);
 
             // Chatbot Listeners
             chatSendBtn.addEventListener('click', handleChatSubmit);
             chatInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') handleChatSubmit(); });
             imageInput.addEventListener('change', (e) => handleImageFile(e.target.files[0]));
             removeImageBtn.addEventListener('click', clearImage);
-            imageUploadArea.addEventListener('dragover', (e) => { e.preventDefault(); imageUploadArea.classList.add('dragover'); });
-            imageUploadArea.addEventListener('dragleave', (e) => { e.preventDefault(); imageUploadArea.classList.remove('dragover'); });
-            imageUploadArea.addEventListener('drop', (e) => { e.preventDefault(); imageUploadArea.classList.remove('dragover'); if (e.dataTransfer.files[0]) handleImageFile(e.dataTransfer.files[0]); });
-            imageUploadArea.addEventListener('click', () => imageInput.click());
-            toggleImageUpload.addEventListener('click', () => {
-                const isHidden = imageUploadContainer.classList.toggle('hidden');
-                if (isHidden) clearImage();
-            });
+            toggleImageUpload.addEventListener('click', () => imageInput.click());
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const loginBtn = e.target;
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+            const errorElement = document.getElementById('login-error');
+
+            if (!email || !password) {
+                errorElement.textContent = 'Vui lòng nhập email và mật khẩu.';
+                errorElement.classList.remove('hidden');
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Đang đăng nhập...';
+            errorElement.classList.add('hidden');
+
+            try {
+                // Hardcoded fallback login
+                if (email === 'admin@gmail.com' && password === '123' || email === 'user@gmail.com' && password === '123') {
+                    USER_EMAIL = 'aibizmanager@gmail.com'; // Use a default email for API calls
+                    showView('app');
+                    switchMainView('chatbot');
+                } else {
+                     errorElement.textContent = 'Email hoặc mật khẩu không chính xác.';
+                     errorElement.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorElement.textContent = 'Đã xảy ra lỗi. Vui lòng thử lại.';
+                errorElement.classList.remove('hidden');
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Đăng nhập';
+            }
+        }
+
+        function handleLogout() {
+            USER_EMAIL = '';
+            document.getElementById('login-form').reset();
+            showView('login');
         }
         
         function showView(viewName) {
-            viewLogin.classList.add('hidden'); viewApp.classList.add('hidden');
-            if (viewName === 'login') viewLogin.classList.remove('hidden');
-            else if (viewName === 'app') viewApp.classList.remove('hidden');
+            viewLogin.classList.toggle('hidden', viewName !== 'login');
+            viewApp.classList.toggle('hidden', viewName !== 'app');
         }
 
         function switchMainView(viewName) {
-            const views = { 'chatbot': viewChatbot, 'dashboard': viewDashboard, 'bai-viet': viewBaiViet, 'dinh-ky': viewDinhKy };
-            const tabs = { 'chatbot': tabChatbot, 'dashboard': tabDashboard, 'bai-viet': tabBaiViet, 'dinh-ky': tabDinhKy };
-            Object.values(views).forEach(v => v.classList.add('hidden'));
-            Object.values(tabs).forEach(t => t.classList.remove('active'));
-            views[viewName].classList.remove('hidden');
-            tabs[viewName].classList.add('active');
-            if (viewName === 'dashboard') {
-                loadAndRenderDashboardData();
-                if (!hasLegacyDashboardDataLoaded) {
-                    fetchDashboardData();
-                    hasLegacyDashboardDataLoaded = true;
-                }
-            } else if (viewName === 'bai-viet' && !hasCampaignDataLoaded) {
-                renderCampaignList();
-                hasCampaignDataLoaded = true;
-            } else if (viewName === 'dinh-ky' && !hasTaskDataLoaded) {
-                renderTaskList();
-                hasTaskDataLoaded = true;
-            }
-        }
-        
-        function switchDashboardTab(tabName) {
-            dashboardTabButtons.forEach(button => {
-                button.classList.toggle('active', button.dataset.tab === tabName);
-                button.classList.toggle('bg-indigo-600', button.dataset.tab === tabName);
-                button.classList.toggle('text-white', button.dataset.tab === tabName);
-                button.classList.toggle('text-gray-300', button.dataset.tab !== tabName);
-            });
-            dashboardTabContents.forEach(content => content.classList.toggle('hidden', content.id !== `dashboard-tab-content-${tabName}`));
-            loadAndRenderDashboardData();
-        }
-        
-        Chart.defaults.color = 'white'; Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
-
-        async function fetchDashboardData() {
-            const legacyContent = document.getElementById('legacy-dashboard-content');
-            const dataWrapper = document.getElementById('legacy-data-wrapper');
-            const loadingIndicator = document.getElementById('dashboard-loading');
-
-            legacyContent.classList.remove('hidden');
-            dataWrapper.classList.add('hidden');
-            loadingIndicator.classList.remove('hidden');
-
-            try {
-                const response = await fetch(WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ "task": "dashboard", "email": USER_EMAIL })
-                });
-                if (!response.ok) throw new Error(`Webhook error: ${response.status}`);
-                
-                const responseText = await response.text();
-                const jsonData = responseText ? JSON.parse(responseText) : {};
-                renderDashboard(jsonData);
-            } catch (error) {
-                console.error("Dashboard fetch error:", error);
-                loadingIndicator.innerHTML = `<p class="text-red-400">Không thể tải dữ liệu kênh.</p>`;
-            } 
-        }
-
-        function renderDashboard(data) {
-            document.getElementById('legacy-data-wrapper').classList.remove('hidden');
-            document.getElementById('dashboard-loading').classList.add('hidden');
-
-            const sumBy = (arr, prop) => Array.isArray(arr) ? arr.reduce((sum, row) => sum + (Number(row[prop]) || 0), 0) : 0;
-            const wpData = data.wp || [], fbData = data.fb || [], ttData = data.tt || [], zlLogData = data['zl log'] || [], segmentData = data.segment || data['zl pro5'] || [];
-
-            document.getElementById('kpi-wp-reach').textContent = sumBy(wpData, 'reach').toLocaleString('vi-VN');
-            document.getElementById('kpi-fp-reach').textContent = sumBy(fbData, 'reach').toLocaleString('vi-VN');
-            document.getElementById('kpi-tt-views').textContent = sumBy(ttData, 'views').toLocaleString('vi-VN');
-            document.getElementById('kpi-zl-sent').textContent = sumBy(zlLogData, 'sent').toLocaleString('vi-VN');
-            document.getElementById('kpi-zl-users').textContent = (segmentData.length || 0).toLocaleString('vi-VN');
-
-            const allDates = [...new Set([...wpData.map(d => d.date.split(' ')[0]), ...fbData.map(d => d.date.split(' ')[0]), ...ttData.map(d => d.date.split(' ')[0])])].sort();
-            const datasets = [
-                { label: 'Wordpress', data: allDates.map(date => wpData.find(d => d.date.startsWith(date))?.reach || 0), borderColor: '#3b82f6' },
-                { label: 'Facebook', data: allDates.map(date => fbData.find(d => d.date.startsWith(date))?.reach || 0), borderColor: '#8b5cf6' },
-                { label: 'TikTok', data: allDates.map(date => ttData.find(d => d.date.startsWith(date))?.views || 0), borderColor: '#ec4899' }
-            ];
-
-            const tsCtx = document.getElementById('timeSeriesChart').getContext('2d');
-            if (timeSeriesChartInstance) timeSeriesChartInstance.destroy();
-            timeSeriesChartInstance = new Chart(tsCtx, {
-                type: 'line',
-                data: { labels: allDates, datasets: datasets.map(ds => ({ ...ds, fill: false, tension: 0.4, borderWidth: 2 })) },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.1)' } }, x: { grid: { color: 'rgba(255, 255, 255, 0.1)' } } } }
-            });
-
-            const segmentCounts = segmentData.reduce((acc, user) => { acc[user.segment] = (acc[user.segment] || 0) + 1; return acc; }, {});
-            const zsCtx = document.getElementById('zaloSegmentsChart').getContext('2d');
-            if (zaloSegmentsChartInstance) zaloSegmentsChartInstance.destroy();
-            zaloSegmentsChartInstance = new Chart(zsCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(segmentCounts),
-                    datasets: [{ data: Object.values(segmentCounts), backgroundColor: [ '#4f46e5', '#3b82f6', '#0ea5e9', '#64748b' ] }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
+            Object.keys(mainViews).forEach(key => {
+                mainViews[key].classList.toggle('hidden', key !== viewName);
+                tabButtons[key].classList.toggle('active', key === viewName);
             });
         }
-
-        // --- BASEROW API FUNCTIONS ---
-        async function apiCall(url, method = 'GET', body = null) {
-            const options = {
-                method,
-                headers: {
-                    'Authorization': `Token ${BASEROW_TOKEN}`,
-                    'Content-Type': 'application/json'
-                }
-            };
-            if (body) options.body = JSON.stringify(body);
-            
-            const response = await fetch(url, options);
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error('Baserow API Error:', errorData);
-                throw new Error(`API call failed: ${response.status}`);
-            }
-            return response.status === 204 ? null : response.json();
-        }
-
-        function getBaserowRows(tableId) {
-            const url = `${BASEROW_HOST}/api/database/rows/table/${tableId}/?user_field_names=true&filter__mail__equal=${USER_EMAIL}`;
-            return apiCall(url);
-        }
-
-        function addBaserowRow(tableId, data) {
-            const url = `${BASEROW_HOST}/api/database/rows/table/${tableId}/?user_field_names=true`;
-            return apiCall(url, 'POST', { ...data, mail: USER_EMAIL });
-        }
-
-        function deleteBaserowRow(tableId, rowId) {
-            const url = `${BASEROW_HOST}/api/database/rows/table/${tableId}/${rowId}/`;
-            return apiCall(url, 'DELETE');
-        }
-
-        function getBaserowRowsWithFilter(tableId, filterField, filterValue) {
-            const url = `${BASEROW_HOST}/api/database/rows/table/${tableId}/?user_field_names=true&filter__${encodeURIComponent(filterField)}__equal=${encodeURIComponent(filterValue)}`;
-            return apiCall(url);
-        }
-
-        async function loadAndRenderDashboardData() {
-            const activeTab = document.querySelector('.dashboard-tab-btn.active')?.dataset.tab;
-            if (activeTab === 'product' && !hasProductDataLoaded) {
-                await renderProductTab();
-                hasProductDataLoaded = true;
-            } else if (activeTab === 'character' && !hasCharacterDataLoaded) {
-                await renderCharacterTab();
-                hasCharacterDataLoaded = true;
-            } else if (activeTab === 'segment' && !hasSegmentDataLoaded) {
-                await renderSegmentTab();
-                hasSegmentDataLoaded = true;
-            }
-        }
         
-        function setupFormListener(form, callback) {
-            const newForm = form.cloneNode(true);
-            form.parentNode.replaceChild(newForm, form);
-            newForm.addEventListener('submit', callback);
-        }
-
-        function setupDeleteListener(tbody, tableId) {
-             tbody.addEventListener('click', async (e) => {
-                const deleteButton = e.target.closest('.delete-btn');
-                if (deleteButton) {
-                    const rowElement = deleteButton.closest('tr');
-                    const rowId = rowElement.dataset.rowId;
-                    if (confirm('Bạn có chắc muốn xóa mục này?')) {
-                        try {
-                            await deleteBaserowRow(tableId, rowId);
-                            rowElement.remove();
-                        } catch (error) {
-                            alert('Lỗi: Không thể xóa mục này.');
-                        }
-                    }
-                }
-            });
-        }
-
-        async function renderTabContent(containerId, tableId, renderRowFn) {
-            const container = document.getElementById(containerId);
-            const tableBody = container.querySelector('tbody');
-            tableBody.innerHTML = `<tr><td colspan="10" class="text-center p-4">Đang tải...</td></tr>`;
-            try {
-                const { results } = await getBaserowRows(tableId);
-                tableBody.innerHTML = results.length > 0 ? results.map(renderRowFn).join('') : `<tr><td colspan="10" class="text-center p-4 text-gray-400">Không có dữ liệu.</td></tr>`;
-            } catch (error) {
-                tableBody.innerHTML = `<tr><td colspan="10" class="text-center p-4 text-red-400">Lỗi tải dữ liệu.</td></tr>`;
-            }
-            setupDeleteListener(tableBody, tableId);
-        }
-        
-        async function renderProductTab() {
-            await renderTabContent('dashboard-tab-content-product', TABLE_IDS.product, row => `
-                <tr data-row-id="${row.id}">
-                    <td class="p-2">${row.name || ''}</td><td class="p-2">${row.SKU || ''}</td>
-                    <td class="p-2">${new Date(row['Created on']).toLocaleDateString('vi-VN')}</td>
-                    <td class="p-2"><button class="text-red-400 hover:text-red-600 delete-btn"><i class="fa-solid fa-trash"></i></button></td></tr>`);
-            setupFormListener(document.querySelector('#dashboard-tab-content-product form'), async e => { e.preventDefault(); const name = e.target.elements[0].value.trim(); const sku = e.target.elements[1].value.trim(); if(name) { await addBaserowRow(TABLE_IDS.product, { 'name': name, 'SKU': sku }); await renderProductTab(); e.target.reset(); } });
-        }
-        async function renderCharacterTab() {
-            await renderTabContent('dashboard-tab-content-character', TABLE_IDS.character, row => `
-                <tr data-row-id="${row.id}">
-                    <td class="p-2">${row.Name || ''}</td><td class="p-2">${row.Notes || ''}</td>
-                    <td class="p-2"><button class="text-red-400 hover:text-red-600 delete-btn"><i class="fa-solid fa-trash"></i></button></td></tr>`);
-            setupFormListener(document.querySelector('#dashboard-tab-content-character form'), async e => { e.preventDefault(); const name = e.target.elements[0].value.trim(); const notes = e.target.elements[1].value.trim(); if(name) { await addBaserowRow(TABLE_IDS.character, { 'Name': name, 'Notes': notes }); await renderCharacterTab(); e.target.reset(); } });
-        }
-        async function renderSegmentTab() {
-            await renderTabContent('dashboard-tab-content-segment', TABLE_IDS.segment, row => `
-                <tr data-row-id="${row.id}">
-                    <td class="p-2">${row.Name || ''}</td><td class="p-2">${row.Notes || ''}</td>
-                    <td class="p-2"><button class="text-red-400 hover:text-red-600 delete-btn"><i class="fa-solid fa-trash"></i></button></td></tr>`);
-            setupFormListener(document.querySelector('#dashboard-tab-content-segment form'), async e => { e.preventDefault(); const name = e.target.elements[0].value.trim(); const channel = e.target.elements[1].value.trim(); if(name) { await addBaserowRow(TABLE_IDS.segment, { 'Name': name, 'Notes': channel }); await renderSegmentTab(); e.target.reset(); } });
-        }
-
-        // --- BAI VIET & DINH KY (ARTICLES & RECURRING) ---
-        async function renderCampaignList() {
-            const listContainer = document.getElementById('campaign-list');
-            listContainer.innerHTML = '<p class="p-4 text-center">Đang tải...</p>';
-            try {
-                const { results } = await getBaserowRows(TABLE_IDS.campaign);
-                listContainer.innerHTML = results.length === 0 ? '<p class="p-4 text-center text-gray-400">Chưa có chiến dịch.</p>' : results.map(c => `
-                    <div class="list-item p-4 rounded-lg" data-campaign-name="${c['chủ đề, tiêu đề']}">
-                        <h3 class="font-bold text-white">${c['chủ đề, tiêu đề']}</h3>
-                        <p class="text-sm text-gray-400">${c.number || 0} bài viết</p></div>`).join('');
-            } catch { listContainer.innerHTML = '<p class="p-4 text-center text-red-400">Lỗi tải chiến dịch.</p>'; }
-            listContainer.onclick = e => { const item = e.target.closest('.list-item'); if(item) { renderPostList(item.dataset.campaignName); baiVietListView.classList.add('hidden'); baiVietDetailView.classList.remove('hidden'); }};
-            setupFormListener(document.getElementById('add-campaign-form'), async e => { e.preventDefault(); const name = e.target.elements[0].value.trim(); if(name) { await addBaserowRow(TABLE_IDS.campaign, { 'chủ đề, tiêu đề': name }); await renderCampaignList(); e.target.reset(); }});
-        }
-        async function renderPostList(campaignName) {
-            document.getElementById('campaign-detail-title').textContent = `Chiến dịch: ${campaignName}`;
-            const container = document.getElementById('post-list-container');
-            container.innerHTML = '<p class="text-center">Đang tải...</p>';
-            try {
-                const { results } = await getBaserowRowsWithFilter(TABLE_IDS.post, 'camp name', campaignName);
-                container.innerHTML = results.length === 0 ? '<p class="p-4 text-center text-gray-400">Chưa có bài viết.</p>' : results.map(p => `<div class="card p-4"><p class="font-semibold text-white">${p['tiêu đề']}</p></div>`).join('');
-            } catch { container.innerHTML = '<p class="text-center text-red-400">Lỗi tải bài viết.</p>'; }
-        }
-        async function renderTaskList() {
-            const tableBody = document.getElementById('task-list-body');
-            tableBody.innerHTML = '<tr><td colspan="3" class="p-4 text-center">Đang tải...</p>';
-            try {
-                const { results } = await getBaserowRows(TABLE_IDS.task);
-                tableBody.innerHTML = results.length === 0 ? '<tr><td colspan="3" class="p-4 text-center text-gray-400">Chưa có nhiệm vụ.</td></tr>' : results.map(t => `<tr class="list-item" data-task-input="${t.input}"><td class="p-4 truncate">${t.input}</td><td class="p-4">${t['Loại nhiệm vụ']?.value || 'N/A'}</td><td class="p-4"><span class="font-semibold text-green-400">Hoạt động</span></td></tr>`).join('');
-            } catch { tableBody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-red-400">Lỗi tải nhiệm vụ.</td></tr>'; }
-            tableBody.onclick = e => { const item = e.target.closest('.list-item'); if(item) { renderTaskLogs(item.dataset.taskInput); dinhKyListView.classList.add('hidden'); dinhKyDetailView.classList.remove('hidden'); }};
-            setupFormListener(document.getElementById('add-task-form'), async e => { e.preventDefault(); const input = e.target.elements[0].value.trim(); const freqId = e.target.elements[1].value; if(input) { await addBaserowRow(TABLE_IDS.task, { 'input': input, 'Loại nhiệm vụ': [{ id: parseInt(freqId) }] }); await renderTaskList(); e.target.reset(); }});
-        }
-        async function renderTaskLogs(taskInput) {
-            document.getElementById('task-detail-title').textContent = `Logs cho: ${taskInput}`;
-            const container = document.getElementById('log-list-container');
-            container.innerHTML = '<p class="text-center">Đang tải...</p>';
-            try {
-                const { results } = await getBaserowRowsWithFilter(TABLE_IDS.automated_logs, 'task', taskInput);
-                container.innerHTML = results.length === 0 ? '<p class="p-4 text-center text-gray-400">Chưa có log.</p>' : results.map(l => `<div class="card p-3"><p class="text-sm text-gray-400">${new Date(l['Created on']).toLocaleString('vi-VN')}</p><p class="text-white mt-1">${l.Name}</p></div>`).join('');
-            } catch { container.innerHTML = '<p class="text-center text-red-400">Lỗi tải logs.</p>'; }
-        }
-
-        // --- CHATBOT LOGIC ---
         async function handleChatSubmit() {
             const userInput = chatInput.value.trim();
             const selectedImageFile = imageInput.files[0];
             if ((!userInput && !selectedImageFile) || isProcessing) return;
+            
             setLoadingState(true);
 
             if (userInput) appendChatMessage(userInput, 'user');
@@ -776,6 +312,7 @@
             } else {
                 await handleTextChat(userInput);
             }
+
             chatInput.value = '';
             clearImage();
             setLoadingState(false);
@@ -795,10 +332,10 @@
                 appendChatMessage(`Lỗi: ${error.message}`, 'ai');
             }
         }
-
+        
         async function handleImageAnalysis(file, userInput) {
-            if (GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY') {
-                appendChatMessage("Lỗi: Vui lòng cấu hình GEMINI_API_KEY của bạn trong code.", 'ai');
+            if (!GEMINI_API_KEY || GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY') {
+                appendChatMessage("Lỗi: Vui lòng cấu hình GEMINI_API_KEY.", 'ai');
                 return;
             }
             try {
@@ -847,20 +384,26 @@
         function handleImageFile(file) {
             if (file && file.type.startsWith('image/')) {
                 const reader = new FileReader();
-                reader.onload = (e) => { imagePreview.src = e.target.result; imagePreviewContainer.classList.remove('hidden'); }
+                reader.onload = (e) => { 
+                    imagePreview.src = e.target.result; 
+                    imagePreviewContainer.classList.remove('hidden'); 
+                }
                 reader.readAsDataURL(file);
-                imageUploadContainer.classList.remove('hidden');
             }
         }
 
         function clearImage() {
-            imageInput.value = ''; imagePreviewContainer.classList.add('hidden'); imagePreview.src = '';
+            imageInput.value = ''; 
+            imagePreviewContainer.classList.add('hidden'); 
+            imagePreview.src = '';
         }
 
         function fileToBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result); reader.onerror = reject; }); }
         
         function setLoadingState(isLoading) {
-            isProcessing = isLoading; chatSendBtn.disabled = isLoading; chatInput.disabled = isLoading;
+            isProcessing = isLoading; 
+            chatSendBtn.disabled = isLoading; 
+            chatInput.disabled = isLoading;
         }
     </script>
 </body>
